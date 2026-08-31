@@ -37,34 +37,19 @@ The limits are targets rather than destructive constraints. Correctness override
 
 When the user requests more information, the implementation MUST expand only the requested scope when that scope can be determined.
 
-Natural-language expansion requests MAY include:
-
-- `expand`
-- `details`
-- `why`
-- `explain line 3`
-- `full`
-- any ordinary follow-up question
+Natural-language expansion requests MAY include `expand`, `details`, `why`, `explain line 3`, `full`, or any ordinary follow-up question.
 
 ### 2.3 Protected content
 
 Protected content MAY exceed six words or six lines when shortening it would damage meaning or execution.
 
-Protected content includes:
-
-- code and shell commands;
-- URLs and file paths;
-- hashes, IDs, package names, and exact error messages;
-- exact numbers, dates, and version strings;
-- legal, medical, security, or safety-critical wording;
-- tables or data structures that require stable formatting;
-- formats explicitly required by the user.
+Protected content includes code, shell commands, URLs, file paths, hashes, IDs, package names, exact errors, exact values, dates, versions, legal or safety-critical wording, stable tables, and user-required formats.
 
 Protected lines are excluded from mechanical line and word targets in conformance fixtures. An implementation SHOULD keep exceptions as small as possible and MUST NOT label ordinary prose as protected merely to bypass the target.
 
 ## 3. Information priority
 
-When compression is required, rank candidate information in this order:
+When compression is required, prioritize:
 
 1. direct answer or decision;
 2. required user action;
@@ -85,28 +70,15 @@ This definition exists for testing only. Implementations SHOULD optimize for rea
 
 ## 5. Modes
 
-### Signal mode
+**Signal** is the default essential layer.
 
-Default. Return only the essential layer.
+**Expand** returns focused detail about the user's requested point. The strict Signal target does not apply.
 
-### Expand mode
-
-Return focused detail about the user's requested point. Concision remains preferred, but the strict Signal target does not apply.
-
-### Full mode
-
-Return the complete useful answer. Normal quality and safety requirements apply.
+**Full** returns the complete useful answer. Normal quality and safety requirements apply.
 
 ## 6. Non-goals
 
-6X6 is not:
-
-- a claim that 36 words is scientifically optimal;
-- a medical treatment or diagnostic tool;
-- a replacement for accessibility standards;
-- a summarizer that discards necessary information;
-- a requirement to force code into six-word lines;
-- a reason to ignore explicit user formatting requests.
+6X6 is not a claim that 36 words is scientifically optimal; a medical treatment or diagnostic tool; a replacement for accessibility standards; a summarizer that discards necessary information; a reason to damage code; or a reason to ignore explicit user formatting requests.
 
 ## 7. Conformance levels
 

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "merge-decision",
+    "prompt": "Should I merge a pull request with two failing tests?",
+    "critical_terms": ["not yet", "two tests", "failing"]
+  },
+  {
+    "id": "backup-before-delete",
+    "prompt": "I am about to delete production data. What matters first?",
+    "critical_terms": ["backup", "verify"]
+  },
+  {
+    "id": "protected-command",
+    "prompt": "Give me an exact command and do not rewrite it.",
+    "critical_terms": ["python tools/check_6x6.py"]
+  },
+  {
+    "id": "hebrew-status",
+    "prompt": "תן לי עדכון קצר על בדיקות שעברו.",
+    "critical_terms": ["הבדיקות", "עברו"]
+  }
+]

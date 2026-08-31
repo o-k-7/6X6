@@ -1,0 +1,19 @@
+[
+  {
+    "id": "merge-decision",
+    "signal": "Not yet.\nTwo tests are still failing.\nFix them before merging."
+  },
+  {
+    "id": "backup-before-delete",
+    "signal": "Back up production data first.\nVerify the backup restores correctly.\nThen perform the deletion."
+  },
+  {
+    "id": "protected-command",
+    "signal": "Use this exact command:\npython tools/check_6x6.py examples/sample-signal.txt --protect 2",
+    "protected_lines": [2]
+  },
+  {
+    "id": "hebrew-status",
+    "signal": "הבדיקות עברו בהצלחה.\nאין כרגע כשל ידוע."
+  }
+]
