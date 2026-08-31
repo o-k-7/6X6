@@ -1,8 +1,20 @@
 # Installing 6X6
 
-6X6 is an instruction-only Agent Skill. It requires no API key, package manager, service, database, or paid dependency.
+6X6 is an instruction-only Agent Skill. It requires no 6X6 API key, server, database, or paid dependency.
 
-The canonical distributable folder is:
+## Easiest: let your coding agent install it
+
+Open `INSTALL-WITH-AI.txt`, copy the instruction, and paste it into your coding agent.
+
+The instruction tells the agent to use the canonical package at `skills/6x6/`, avoid unrelated dependencies or services, and verify the installation afterward.
+
+If the host cannot install Agent Skills, it should tell you and fall back to `6X6-PROMPT.txt`.
+
+## One command for Skills CLI users
+
+After the repository is public, users who already have a compatible Skills CLI can use its repository-install flow instead of copying folders manually. Follow that CLI's own confirmation and scope prompts; 6X6 does not require installing a separate runtime of its own.
+
+## Canonical package
 
 ```text
 skills/6x6/
@@ -13,7 +25,7 @@ skills/6x6/
     └── SPEC.md
 ```
 
-Copy that entire `6x6` directory into a skill location supported by your agent.
+Manual installation means copying that entire `6x6` directory into a skill location supported by your agent.
 
 ## Claude Code
 
@@ -30,8 +42,6 @@ Personal installation:
 mkdir -p ~/.claude/skills
 cp -R /path/to/6X6/skills/6x6 ~/.claude/skills/6x6
 ```
-
-Claude Code follows the Agent Skills standard and discovers skills from `.claude/skills/` and `~/.claude/skills/`.
 
 Official reference: https://code.claude.com/docs/en/skills
 
@@ -64,31 +74,25 @@ mkdir -p .cursor/skills
 cp -R /path/to/6X6/skills/6x6 .cursor/skills/6x6
 ```
 
-Cursor also discovers `.agents/skills/`, so the Codex-compatible project layout can be shared by both tools.
+Cursor may also discover `.agents/skills/`, allowing a shared project layout where supported.
 
 Official reference: https://cursor.com/docs/skills
 
 ## Gemini CLI
 
-Gemini CLI supports skill-style packages in its `.gemini/skills/` ecosystem. If the installed Gemini CLI version does not discover the Agent Skill automatically, use the universal prompt fallback below rather than relying on undocumented behavior.
+If the installed Gemini CLI build supports a compatible skill location, use its documented mechanism. Otherwise use the safe prompt fallback:
 
-Project fallback:
-
-1. copy the contents of `prompts/universal.md`;
-2. add them to the project's `GEMINI.md`;
-3. run `/memory refresh` if the session is already open.
+1. copy `6X6-PROMPT.txt`;
+2. place the instructions in the project's `GEMINI.md` or other supported persistent context;
+3. refresh/restart the session if required by the host.
 
 Official context reference: https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html
 
 ## Any chat or model
 
-If a host does not support Agent Skills, copy the instruction block from:
+For ordinary ChatGPT, Claude, Gemini, or another chat host, no Skill installation is necessary.
 
-```text
-prompts/universal.md
-```
-
-into the host's custom instructions, system prompt, project instructions, or the beginning of a conversation.
+Copy `6X6-PROMPT.txt` into Custom Instructions, Project Instructions, system instructions, or the beginning of a conversation.
 
 ## Verify installation
 
@@ -98,16 +102,16 @@ Ask:
 Use 6X6. Explain why the sky appears blue.
 ```
 
-The first response layer should lead with the answer, remain low-noise, and target at most six non-protected lines with at most six words per non-protected line.
-
 Then ask:
 
 ```text
 Expand line 2.
 ```
 
-Only the requested point should expand when its scope is clear.
+The first reply should be low-noise and concise. The second should expand only the requested point when its scope is clear.
 
 ## Uninstall
 
-Delete the installed `6x6` skill directory. No background process, account, subscription, database, or remote state is created by 6X6.
+Delete the installed `6x6` skill directory, or remove the copied prompt from your host instructions.
+
+6X6 creates no background process, 6X6 account, subscription, database, or remote state.
