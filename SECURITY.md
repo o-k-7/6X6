@@ -14,21 +14,41 @@ For ordinary bugs that do not create a security risk, use a normal GitHub issue.
 
 ## Security model
 
-The reference 6X6 checker:
+6X6 is instruction-only. The canonical Skill is Markdown/YAML and does not request host tools or permissions.
 
-- reads local UTF-8 text;
-- performs deterministic formatting checks;
-- does not execute model output;
-- does not require network access;
-- has no required third-party Python dependencies;
-- stores no credentials;
-- sends no project telemetry.
+The reference Python tools:
 
-The Agent Skill itself is declarative Markdown. Host AI products retain their own security boundaries and permissions.
+- read local UTF-8 project files;
+- perform deterministic checks;
+- print results to standard output;
+- do not execute model output;
+- do not open network connections;
+- do not run shell commands;
+- do not modify system configuration;
+- do not install software;
+- have no required third-party dependencies;
+- store no credentials;
+- send no project telemetry.
+
+Host AI products retain their own security boundaries and permissions. Installing 6X6 does not grant the Skill additional permissions.
+
+## Automated repository audit
+
+Run:
+
+```bash
+python tools/security_check.py
+```
+
+The zero-dependency gate scans repository text for common credential shapes and scans Python files for execution/network primitives that the reference implementation does not need. The release path must fail if such material appears unexpectedly.
+
+This is a defense-in-depth check, not a claim that pattern matching can prove a repository is vulnerability-free.
 
 ## Untrusted content
 
 Treat prompts, model responses, copied commands, URLs, and third-party evaluation data as untrusted input. 6X6 formatting is not a security boundary and must never be used as evidence that generated commands or content are safe to execute.
+
+The Skill MUST NOT instruct a host to execute commands, browse the network, read unrelated user files, alter permissions, expose secrets, or bypass another tool's safety controls merely to produce a 6X6 response.
 
 ## Dependency policy
 

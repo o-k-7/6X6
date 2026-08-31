@@ -7,13 +7,16 @@ Use this checklist before making the repository public or tagging a release.
 - [ ] Canonical skill exists at `skills/6x6/SKILL.md`.
 - [ ] Bundled skill reference matches the normative protocol behavior.
 - [ ] Universal prompt matches the same behavior.
+- [ ] `6X6-PROMPT.txt` matches the universal prompt block.
 - [ ] Examples do not contradict the specification.
 - [ ] Installation guide and compatibility matrix are current.
+- [ ] A non-technical user can start from `QUICKSTART.md` without Terminal.
 
 ## Validation
 
 - [ ] `python -m unittest discover -s tests -v` passes locally.
 - [ ] `python tools/check_6x6.py examples/sample-signal.txt` passes.
+- [ ] `python tools/security_check.py` passes.
 - [ ] `python tools/release_check.py` passes.
 - [ ] `python tools/evaluate.py --cases evals/cases.json --outputs evals/sample_outputs.json` passes.
 - [ ] Canonical `skills/6x6` package passes Agent Skills reference validation when `skills-ref` is available.
@@ -23,6 +26,7 @@ Use this checklist before making the repository public or tagging a release.
 
 ## Distribution
 
+- [ ] 30-second no-install path is visible near the top of README.
 - [ ] Claude Code installation path is documented.
 - [ ] Codex installation path is documented.
 - [ ] Cursor installation path is documented.
@@ -45,6 +49,8 @@ Use this checklist before making the repository public or tagging a release.
 ## Privacy and secrets
 
 - [ ] Repository contains no API keys, tokens, passwords, private URLs, confidential conversations, or personal datasets.
+- [ ] `python tools/security_check.py` finds no credential-like material.
+- [ ] Reference Python contains no unreviewed shell execution, dynamic execution, or network-client primitive.
 - [ ] Test fixtures are synthetic or redistributable.
 - [ ] No telemetry, analytics, tracking pixel, or automatic upload has been introduced without documentation.
 
@@ -73,5 +79,5 @@ Only after every required item above passes:
 1. make the repository public;
 2. enable standard-runner CI only if desired;
 3. run the public CI once if enabled;
-4. verify the public README and skill paths from a clean browser session;
+4. verify the public README, quick start, prompt file, and skill paths from a clean browser session;
 5. tag the release only after those checks pass.
