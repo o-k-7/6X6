@@ -1,6 +1,6 @@
 # 6X6 Protocol Specification
 
-Version: 0.1.0
+Version: 0.2.0
 
 6X6 is a progressive-disclosure output protocol for AI systems. Its purpose is to surface the most useful information first while preserving correctness.
 
@@ -12,7 +12,7 @@ Version: 0.1.0
 
 **Full**: a complete response when the user requests full detail.
 
-**Protected content**: content whose integrity is more important than the 6x6 limit, including code, commands, URLs, identifiers, exact values, safety-critical text, and user-required formats.
+**Protected content**: content whose integrity is more important than the 6x6 target, including code, commands, URLs, identifiers, exact values, safety-critical text, and user-required formats.
 
 ## 2. Normative requirements
 
@@ -26,8 +26,8 @@ A compliant implementation:
 - MUST preserve information required for correctness and safety.
 - MUST NOT invent facts to make an answer shorter.
 - MUST NOT omit a critical warning solely to satisfy the line or word target.
-- SHOULD use no more than 6 visible content lines.
-- SHOULD use no more than 6 natural-language words per line.
+- SHOULD use no more than 6 non-protected visible content lines.
+- SHOULD use no more than 6 natural-language words per non-protected line.
 - SHOULD avoid filler, repeated conclusions, introductions, and unsolicited background.
 - SHOULD stop after Signal unless expansion is required for correctness.
 
@@ -60,7 +60,7 @@ Protected content includes:
 - tables or data structures that require stable formatting;
 - formats explicitly required by the user.
 
-An implementation SHOULD keep exceptions as small as possible.
+Protected lines are excluded from mechanical line and word targets in conformance fixtures. An implementation SHOULD keep exceptions as small as possible and MUST NOT label ordinary prose as protected merely to bypass the target.
 
 ## 3. Information priority
 
@@ -77,11 +77,11 @@ Optional context SHOULD move to Expand or Full.
 
 ## 4. Word counting
 
-For conformance tests, a word is a whitespace-separated token after trimming surrounding whitespace.
+For deterministic conformance tests, a word is a whitespace-separated token after trimming surrounding whitespace.
 
-The reference checker ignores blank lines. Protected lines can be marked explicitly in test fixtures so that deterministic tests do not penalize integrity-preserving exceptions.
+Blank lines are ignored. Explicitly protected physical lines are excluded from mechanical line and word targets.
 
-This mechanical definition exists for testing only. Implementations SHOULD optimize for readability rather than gaming tokenization.
+This definition exists for testing only. Implementations SHOULD optimize for readability rather than gaming tokenization.
 
 ## 5. Modes
 
@@ -102,6 +102,7 @@ Return the complete useful answer. Normal quality and safety requirements apply.
 6X6 is not:
 
 - a claim that 36 words is scientifically optimal;
+- a medical treatment or diagnostic tool;
 - a replacement for accessibility standards;
 - a summarizer that discards necessary information;
 - a requirement to force code into six-word lines;
