@@ -1,0 +1,6 @@
+Use the local checker first.
+No paid API is required.
+Run tests before every change.
+Protect exact code when needed.
+Keep critical facts intact.
+Expand details only on request.
