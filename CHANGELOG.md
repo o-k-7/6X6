@@ -10,6 +10,28 @@ All notable project changes are recorded here.
 - public standard-runner CI after the repository becomes public;
 - additional community-tested host integrations.
 
+## [0.4.0-rc1] - 2026-08-31
+
+### Added
+
+- `QUICKSTART.md` for non-technical users;
+- `6X6-PROMPT.txt` as a zero-install copy/paste entry point;
+- zero-dependency repository security audit;
+- security-audit regression tests.
+
+### Changed
+
+- README now leads with a 30-second no-Terminal path;
+- release gate requires beginner-facing and security assets;
+- security policy explicitly documents no-network, no-shell, no-telemetry behavior;
+- canonical skill metadata bumped to `0.4.0-rc1`.
+
+### Security
+
+- scanned for common credential shapes;
+- blocked shell execution, dynamic execution, and network-client primitives from reference Python source unless explicitly reviewed in a future change;
+- documented that 6X6 never grants host permissions or treats generated output as trusted.
+
 ## [0.3.0-rc1] - 2026-08-31
 
 ### Added
