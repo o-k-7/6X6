@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = (
     "README.md",
+    "QUICKSTART.md",
+    "6X6-PROMPT.txt",
     "LICENSE",
     "LEGAL.md",
     "PRIVACY.md",
@@ -27,6 +29,7 @@ REQUIRED = (
     "skills/6x6/references/SPEC.md",
     "skills/6x6/agents/openai.yaml",
     "prompts/universal.md",
+    "tools/security_check.py",
 )
 
 
@@ -58,6 +61,14 @@ def run(root: Path = ROOT) -> list[str]:
             changelog = (root / "CHANGELOG.md").read_text(encoding="utf-8") if (root / "CHANGELOG.md").is_file() else ""
             if f"[{version}]" not in changelog:
                 errors.append(f"CHANGELOG.md has no [{version}] entry")
+
+    prompt = root / "6X6-PROMPT.txt"
+    universal = root / "prompts/universal.md"
+    if prompt.is_file() and universal.is_file():
+        prompt_text = prompt.read_text(encoding="utf-8").strip()
+        universal_text = universal.read_text(encoding="utf-8")
+        if prompt_text not in universal_text:
+            errors.append("6X6-PROMPT.txt must match the universal prompt instruction block")
 
     openai_path = root / "skills/6x6/agents/openai.yaml"
     if openai_path.is_file():
