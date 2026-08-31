@@ -11,7 +11,7 @@ class WordCountingTests(unittest.TestCase):
         self.assertEqual(count_words("Six words are easy to count"), 6)
 
     def test_unicode_words_are_supported(self):
-        self.assertEqual(count_words("תשובה קצרה וברורה עובדת גם בעברית"), 5)
+        self.assertEqual(count_words("תשובה קצרה וברורה עובדת גם בעברית"), 6)
 
 
 class SignalComplianceTests(unittest.TestCase):
@@ -63,7 +63,7 @@ Then merge the pull request."""
         self.assertEqual(result.content_lines, 9)
         self.assertEqual(result.target_lines, 6)
 
-    def test_unprotected_seventh_line_still_fails(self):
+    def test_one_protected_line_leaves_six_target_lines(self):
         text = "\n".join(f"Line {number}" for number in range(1, 8))
         result = check_signal(text, protected_lines={1})
         self.assertTrue(result.compliant)
