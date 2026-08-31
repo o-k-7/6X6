@@ -4,20 +4,31 @@ Use this checklist before making the repository public or tagging a release.
 
 ## Product
 
-- [ ] `SPEC.md` version matches the release.
 - [ ] Canonical skill exists at `skills/6x6/SKILL.md`.
 - [ ] Bundled skill reference matches the normative protocol behavior.
 - [ ] Universal prompt matches the same behavior.
 - [ ] Examples do not contradict the specification.
+- [ ] Installation guide and compatibility matrix are current.
 
 ## Validation
 
 - [ ] `python -m unittest discover -s tests -v` passes locally.
 - [ ] `python tools/check_6x6.py examples/sample-signal.txt` passes.
-- [ ] Canonical `skills/6x6` package passes Agent Skills reference validation.
+- [ ] `python tools/release_check.py` passes.
+- [ ] `python tools/evaluate.py --cases evals/cases.json --outputs evals/sample_outputs.json` passes.
+- [ ] Canonical `skills/6x6` package passes Agent Skills reference validation when `skills-ref` is available.
 - [ ] Unicode / non-English text is covered by tests.
 - [ ] Protected-content exceptions are covered by regression tests.
 - [ ] No test requires a paid API or hosted service.
+
+## Distribution
+
+- [ ] Claude Code installation path is documented.
+- [ ] Codex installation path is documented.
+- [ ] Cursor installation path is documented.
+- [ ] Generic prompt fallback is documented.
+- [ ] Host-specific metadata is optional and does not change core behavior.
+- [ ] Uninstall leaves no remote 6X6 state behind.
 
 ## Legal and provenance
 
@@ -35,7 +46,7 @@ Use this checklist before making the repository public or tagging a release.
 
 - [ ] Repository contains no API keys, tokens, passwords, private URLs, confidential conversations, or personal datasets.
 - [ ] Test fixtures are synthetic or redistributable.
-- [ ] No telemetry, analytics, or automatic upload has been introduced without documentation.
+- [ ] No telemetry, analytics, tracking pixel, or automatic upload has been introduced without documentation.
 
 ## Cost guardrail
 
@@ -47,10 +58,12 @@ Use this checklist before making the repository public or tagging a release.
 
 ## Repository hygiene
 
-- [ ] README install instructions point to the canonical skill directory.
+- [ ] README points to the canonical skill directory.
 - [ ] Status/version text is current.
+- [ ] `CHANGELOG.md` includes the canonical skill metadata version.
 - [ ] Contribution path and security reporting path are documented.
 - [ ] `.gitignore` excludes common local secrets and caches.
+- [ ] No ambiguous root-level `SKILL.md` exists.
 - [ ] Branch / PR used for release hardening is reviewed before merge.
 
 ## Public switch
@@ -58,7 +71,7 @@ Use this checklist before making the repository public or tagging a release.
 Only after every required item above passes:
 
 1. make the repository public;
-2. enable standard-runner CI if desired;
-3. run the public CI once;
+2. enable standard-runner CI only if desired;
+3. run the public CI once if enabled;
 4. verify the public README and skill paths from a clean browser session;
 5. tag the release only after those checks pass.

@@ -4,7 +4,7 @@ description: Give the essential answer first in a low-noise 6x6 format, then exp
 license: MIT
 metadata:
   author: king-kruk
-  version: "0.2.0"
+  version: "0.3.0-rc1"
 ---
 
 # 6X6

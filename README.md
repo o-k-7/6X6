@@ -6,7 +6,7 @@
 
 The goal is simple: reduce output noise without sacrificing correctness.
 
-> Status: **v0.2 release candidate**
+> Status: **v0.3 public-release candidate**
 
 ## Why 6X6?
 
@@ -33,31 +33,21 @@ Correctness always wins over compression.
 
 ## Install / use
 
-### Option 1: Agent Skill
-
 The canonical Agent Skill is:
 
 ```text
 skills/6x6/
 ```
 
-Install or copy that directory into the skills location supported by your AI agent or coding tool.
+Copy that directory into your host's supported skill location. 6X6 includes documented paths for **Claude Code, Codex, Cursor**, a Gemini CLI fallback, and a universal prompt for any other model or chat host.
 
-The package layout follows the public Agent Skills specification: the `name` is `6x6` and matches its parent directory.
+See **[`docs/INSTALLATION.md`](docs/INSTALLATION.md)** for exact installation steps and **[`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md)** for the support matrix.
 
-If you already have the optional Agent Skills reference validator installed, you can validate it with:
+No 6X6 API key, server, database, hosted service, or package install is required.
 
-```bash
-skills-ref validate skills/6x6
-```
+### Any chat or model
 
-The validator is optional. 6X6 itself has no third-party runtime dependency.
-
-### Option 2: Any chat or model
-
-Copy [`prompts/universal.md`](prompts/universal.md) into system instructions, custom instructions, project instructions, or the beginning of a chat.
-
-No 6X6 API key, server, database, or hosted service is required.
+If the host does not support Agent Skills, copy [`prompts/universal.md`](prompts/universal.md) into system instructions, custom instructions, project instructions, or the beginning of a chat.
 
 ## Local validation
 
@@ -81,7 +71,19 @@ Run the zero-cost offline benchmark:
 python tools/evaluate.py --cases evals/cases.json --outputs evals/sample_outputs.json
 ```
 
-The v0.2 reference suite contains **27 deterministic tests** covering formatting, protected-content behavior, Unicode text, parser edge cases, evaluation metrics, and the canonical Agent Skill package structure.
+Run the public-release structure gate:
+
+```bash
+python tools/release_check.py
+```
+
+If you already have the optional Agent Skills reference validator installed, also run:
+
+```bash
+skills-ref validate skills/6x6
+```
+
+The validator is optional. 6X6 itself has no third-party runtime dependency.
 
 ## Repository structure
 
@@ -90,6 +92,8 @@ The v0.2 reference suite contains **27 deterministic tests** covering formatting
 ├── skills/
 │   └── 6x6/
 │       ├── SKILL.md
+│       ├── agents/
+│       │   └── openai.yaml
 │       └── references/
 │           └── SPEC.md
 ├── SPEC.md
@@ -97,17 +101,14 @@ The v0.2 reference suite contains **27 deterministic tests** covering formatting
 │   └── universal.md
 ├── tools/
 │   ├── check_6x6.py
-│   └── evaluate.py
+│   ├── evaluate.py
+│   └── release_check.py
 ├── tests/
-│   ├── test_compliance.py
-│   ├── test_evaluate.py
-│   └── test_skill_package.py
 ├── evals/
-│   ├── cases.json
-│   └── sample_outputs.json
 ├── examples/
-│   └── sample-signal.txt
 ├── docs/
+│   ├── INSTALLATION.md
+│   ├── COMPATIBILITY.md
 │   └── RELEASE_CHECKLIST.md
 ├── LEGAL.md
 ├── PRIVACY.md
@@ -131,6 +132,12 @@ The required development and test path must remain usable with **zero paid infra
 - no paid CI requirement.
 
 While this repository is private, GitHub-hosted Actions are intentionally not enabled. If the project becomes public, only standard GitHub-hosted runners should be used for project CI under the zero-cost policy.
+
+## Evaluation
+
+The offline evaluator measures mechanical 6X6 compliance and retention of predefined critical terms. It is a deterministic sanity check, not proof that every model preserves all important meaning.
+
+Real-model claims must be backed by recorded model/version/prompt results before publication.
 
 ## Public-release policy
 
