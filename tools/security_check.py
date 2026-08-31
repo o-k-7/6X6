@@ -17,6 +17,7 @@ SELF = Path(__file__).resolve()
 
 TEXT_SUFFIXES = {".py", ".md", ".txt", ".json", ".yaml", ".yml"}
 SKIP_PARTS = {".git", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", ".venv", "venv"}
+KNOWN_FIXTURE_FILES = {"tests/test_security_check.py"}
 
 SECRET_PATTERNS = {
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
@@ -44,6 +45,12 @@ def _iter_text_files(root: Path):
         if not path.is_file() or path.resolve() == SELF:
             continue
         if any(part in SKIP_PARTS for part in path.parts):
+            continue
+        try:
+            relative = path.relative_to(root).as_posix()
+        except ValueError:
+            continue
+        if relative in KNOWN_FIXTURE_FILES:
             continue
         if path.suffix.lower() in TEXT_SUFFIXES:
             yield path
