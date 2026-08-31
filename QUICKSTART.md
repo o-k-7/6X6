@@ -2,14 +2,36 @@
 
 You do not need to install software, use Terminal, create an account, or add an API key.
 
-## Easiest way
+## Choose the easiest path
+
+### I use normal ChatGPT, Claude, Gemini, or another chat app
 
 1. Open `6X6-PROMPT.txt`.
-2. Copy all of its text.
-3. Paste it into your AI tool's Custom Instructions, Project Instructions, system prompt, or the beginning of a chat.
+2. Copy all of it.
+3. Paste it into Custom Instructions, Project Instructions, or the beginning of a chat.
 4. Ask a normal question.
 
-That is enough to use 6X6.
+You are done.
+
+### I use a coding agent
+
+Open `INSTALL-WITH-AI.txt`, copy the instruction, and paste it into your coding agent.
+
+The agent should install the canonical `skills/6x6/` package in its normal user-level skills folder and verify it for you.
+
+If automatic installation is unsupported, use the manual instructions in `docs/INSTALLATION.md`.
+
+## See the difference first
+
+Before installing anything, open `examples/BEFORE_AFTER.md`.
+
+The core idea is:
+
+```text
+Signal -> Expand -> Full
+```
+
+You get the useful answer first. Details remain available when you ask.
 
 ## Test it
 
@@ -19,22 +41,18 @@ Ask:
 Explain why the sky appears blue.
 ```
 
-The answer should start with a short Signal: the useful part first, with very little noise.
-
 Then ask:
 
 ```text
 Expand line 2.
 ```
 
-The AI should expand only that point when the request is clear.
+The first reply should stay short. The second should expand only the requested point when its scope is clear.
 
-## Want the full Skill instead?
+## Nothing runs in the background
 
-Developers and coding-agent users can install the canonical package from `skills/6x6/`. See `docs/INSTALLATION.md` for Claude Code, Codex, Cursor, Gemini CLI fallback, and generic hosts.
+6X6 is an instruction format. It does not create an account, start a server, read your files by itself, collect analytics, or require a subscription.
 
-## What 6X6 does not do
-
-6X6 does not run in the background, read your files, connect to a server, create an account, collect analytics, or require a subscription. It is an instruction format that changes how an AI presents its answer.
+The repository's optional Python tools are for maintainers and validation only. Normal users do not need to run them.
 
 Correctness and safety always override the 6x6 size target.

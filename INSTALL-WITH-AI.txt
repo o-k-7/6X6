@@ -1,0 +1,3 @@
+Install the 6X6 Agent Skill from https://github.com/king-kruk/6X6.
+
+Use the canonical skill at skills/6x6/ and install it in the normal user-level skill location supported by this agent. Do not install dependencies, run unrelated scripts, request API keys, or enable network services. After installation, verify that the skill is discoverable and test it with: "Use 6X6. Explain why the sky appears blue." If this host cannot install Agent Skills, tell me that clearly and use the repository's 6X6-PROMPT.txt instructions instead.

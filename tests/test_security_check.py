@@ -23,9 +23,17 @@ class SecurityCheckTests(unittest.TestCase):
         findings = self._scan_files({"tool.py": "import os\nos.system('echo unsafe')\n"})
         self.assertTrue(any(item.category == "shell execution" for item in findings))
 
+    def test_process_import_is_rejected(self):
+        findings = self._scan_files({"tool.py": "import subprocess as sp\nprint(sp)\n"})
+        self.assertTrue(any(item.category == "network or process import" for item in findings))
+
     def test_network_client_is_rejected(self):
         findings = self._scan_files({"tool.py": "import socket\nsocket.create_connection(('example.com', 443))\n"})
-        self.assertTrue(any(item.category == "network client" for item in findings))
+        self.assertTrue(any(item.category in {"network or process import", "network client"} for item in findings))
+
+    def test_dynamic_execution_is_rejected(self):
+        findings = self._scan_files({"tool.py": "exec('print(1)')\n"})
+        self.assertTrue(any(item.category == "dynamic execution" for item in findings))
 
     def test_private_key_is_rejected(self):
         findings = self._scan_files({"secret.txt": "-----BEGIN PRIVATE KEY-----\nnot-real\n"})
@@ -34,6 +42,10 @@ class SecurityCheckTests(unittest.TestCase):
     def test_github_token_shape_is_rejected(self):
         findings = self._scan_files({"secret.txt": "ghp_123456789012345678901234567890123456\n"})
         self.assertTrue(any(item.category == "github token" for item in findings))
+
+    def test_extensionless_text_is_scanned(self):
+        findings = self._scan_files({"SECRETS": "AKIA1234567890ABCDEF\n"})
+        self.assertTrue(any(item.category == "aws access key" for item in findings))
 
 
 if __name__ == "__main__":
