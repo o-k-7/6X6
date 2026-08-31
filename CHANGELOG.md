@@ -6,9 +6,23 @@ All notable project changes are recorded here.
 
 ### Planned
 
-- broader model-output evaluation dataset;
+- broader real-model evaluation dataset;
 - public standard-runner CI after the repository becomes public;
-- additional installation examples for supported agent hosts.
+- additional community-tested host integrations.
+
+## [0.3.0-rc1] - 2026-08-31
+
+### Added
+
+- cross-agent installation guide for Claude Code, Codex, Cursor, Gemini CLI fallback, and generic chat hosts;
+- compatibility matrix and portability rules;
+- OpenAI host metadata in `skills/6x6/agents/openai.yaml`;
+- zero-dependency public-release structure gate.
+
+### Changed
+
+- improved distribution guidance so users can install the canonical skill without understanding repository internals;
+- bumped canonical skill metadata to `0.3.0-rc1`.
 
 ## [0.2.0-rc1] - 2026-08-31
 
