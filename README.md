@@ -75,7 +75,13 @@ Check a Signal block:
 python tools/check_6x6.py examples/sample-signal.txt
 ```
 
-The v0.2 reference suite contains **21 deterministic tests** covering formatting, protected-content behavior, Unicode text, parser edge cases, and the canonical Agent Skill package structure.
+Run the zero-cost offline benchmark:
+
+```bash
+python tools/evaluate.py --cases evals/cases.json --outputs evals/sample_outputs.json
+```
+
+The v0.2 reference suite contains **27 deterministic tests** covering formatting, protected-content behavior, Unicode text, parser edge cases, evaluation metrics, and the canonical Agent Skill package structure.
 
 ## Repository structure
 
@@ -90,10 +96,15 @@ The v0.2 reference suite contains **21 deterministic tests** covering formatting
 ├── prompts/
 │   └── universal.md
 ├── tools/
-│   └── check_6x6.py
+│   ├── check_6x6.py
+│   └── evaluate.py
 ├── tests/
 │   ├── test_compliance.py
+│   ├── test_evaluate.py
 │   └── test_skill_package.py
+├── evals/
+│   ├── cases.json
+│   └── sample_outputs.json
 ├── examples/
 │   └── sample-signal.txt
 ├── docs/
