@@ -11,6 +11,8 @@ REQUIRED = (
     "README.md",
     "QUICKSTART.md",
     "6X6-PROMPT.txt",
+    "INSTALL-WITH-AI.txt",
+    "examples/BEFORE_AFTER.md",
     "LICENSE",
     "LEGAL.md",
     "PRIVACY.md",
@@ -69,6 +71,14 @@ def run(root: Path = ROOT) -> list[str]:
         universal_text = universal.read_text(encoding="utf-8")
         if prompt_text not in universal_text:
             errors.append("6X6-PROMPT.txt must match the universal prompt instruction block")
+
+    installer = root / "INSTALL-WITH-AI.txt"
+    if installer.is_file():
+        installer_text = installer.read_text(encoding="utf-8")
+        if "skills/6x6/" not in installer_text:
+            errors.append("INSTALL-WITH-AI.txt must point to the canonical skill")
+        if "Do not install dependencies" not in installer_text:
+            errors.append("INSTALL-WITH-AI.txt must preserve the safe installation guardrail")
 
     openai_path = root / "skills/6x6/agents/openai.yaml"
     if openai_path.is_file():
