@@ -11,6 +11,7 @@ Use this checklist before making the repository public or tagging a release.
 - [ ] Examples do not contradict the specification.
 - [ ] Installation guide and compatibility matrix are current.
 - [ ] A non-technical user can start from `QUICKSTART.md` without Terminal.
+- [ ] README shows a Before -> After result before technical details.
 
 ## Validation
 
@@ -27,6 +28,8 @@ Use this checklist before making the repository public or tagging a release.
 ## Distribution
 
 - [ ] 30-second no-install path is visible near the top of README.
+- [ ] `INSTALL-WITH-AI.txt` offers an agent-assisted installation path.
+- [ ] Agent-assisted installation explicitly forbids unrelated dependencies/services.
 - [ ] Claude Code installation path is documented.
 - [ ] Codex installation path is documented.
 - [ ] Cursor installation path is documented.
@@ -50,6 +53,7 @@ Use this checklist before making the repository public or tagging a release.
 
 - [ ] Repository contains no API keys, tokens, passwords, private URLs, confidential conversations, or personal datasets.
 - [ ] `python tools/security_check.py` finds no credential-like material.
+- [ ] Security scan includes extensionless UTF-8 files, not only known source extensions.
 - [ ] Reference Python contains no unreviewed shell execution, dynamic execution, or network-client primitive.
 - [ ] Test fixtures are synthetic or redistributable.
 - [ ] No telemetry, analytics, tracking pixel, or automatic upload has been introduced without documentation.
@@ -79,5 +83,5 @@ Only after every required item above passes:
 1. make the repository public;
 2. enable standard-runner CI only if desired;
 3. run the public CI once if enabled;
-4. verify the public README, quick start, prompt file, and skill paths from a clean browser session;
+4. verify README, Quick Start, copy/paste prompt, agent installer, Before/After example, and canonical Skill from a clean browser session;
 5. tag the release only after those checks pass.
