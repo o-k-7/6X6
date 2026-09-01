@@ -12,7 +12,12 @@ import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
-from tools.check_6x6 import check_signal
+try:
+    from tools.check_6x6 import check_signal
+except ModuleNotFoundError as exc:
+    if exc.name != "tools":
+        raise
+    from check_6x6 import check_signal
 
 
 @dataclass(frozen=True)
