@@ -1,0 +1,32 @@
+name: Publish v0.5.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".release/v0.5.0.md"
+      - ".github/workflows/release-v0.5.0.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Publish release if missing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v0.5.0 >/dev/null 2>&1; then
+            echo "v0.5.0 already exists"
+            exit 0
+          fi
+          gh release create v0.5.0 \
+            --target "$GITHUB_SHA" \
+            --title "6X6 v0.5.0" \
+            --notes-file .release/v0.5.0.md
