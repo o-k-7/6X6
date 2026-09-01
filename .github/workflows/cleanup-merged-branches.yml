@@ -1,0 +1,36 @@
+name: One-shot merged branch cleanup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/cleanup-merged-branches.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Delete merged development branches
+        run: |
+          for branch in \
+            feat/v1-protocol \
+            fix/evaluate-cli-ci \
+            release/publish-v0.5.0 \
+            release/v0.2-hardening \
+            release/v0.3-public-ready \
+            release/v0.4-ux-security-audit \
+            release/v0.5-onboarding-polish \
+            release/v0.5.0-public-fix \
+            release/v0.5.0 \
+            release/v1.0.0 \
+            chore/v1-release-hygiene
+          do
+            git push origin --delete "$branch" || true
+          done

@@ -1,6 +1,6 @@
 # 6X6 Protocol Specification
 
-Version: 0.2.0
+Version: 1.0.0
 
 6X6 is a progressive-disclosure output protocol for AI systems. Its purpose is to surface the most useful information first while preserving correctness.
 

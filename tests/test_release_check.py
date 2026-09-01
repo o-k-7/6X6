@@ -7,8 +7,8 @@ from tools.release_check import REQUIRED, run, skill_version
 
 class ReleaseCheckTests(unittest.TestCase):
     def test_skill_version_reads_metadata_version(self):
-        text = '---\nmetadata:\n  version: "0.3.0-rc1"\n---\n'
-        self.assertEqual(skill_version(text), "0.3.0-rc1")
+        text = '---\nmetadata:\n  version: "1.0.0"\n---\n'
+        self.assertEqual(skill_version(text), "1.0.0")
 
     def test_skill_version_missing_returns_none(self):
         self.assertIsNone(skill_version("---\nname: 6x6\n---\n"))
