@@ -9,7 +9,9 @@ All notable project changes are recorded here.
 - broader real-model evaluation dataset;
 - additional community-tested host integrations.
 
-## [0.5.0] - 2026-09-01
+## [1.0.0] - 2026-09-01
+
+First stable public release of 6X6.
 
 ### Added
 
@@ -24,7 +26,7 @@ All notable project changes are recorded here.
 - security scanner now uses Python AST inspection for imports and execution/network calls;
 - security scanning covers extensionless UTF-8 project files up to a bounded size;
 - canonical public repository identity aligned to `o-k-7/6X6`;
-- canonical skill metadata promoted to stable `0.5.0`.
+- canonical skill metadata promoted to stable `1.0.0`.
 
 ### Security
 
