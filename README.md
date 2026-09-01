@@ -6,7 +6,7 @@
 
 6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands only when you ask.
 
-> Status: **v0.5.0 stable release**
+> Status: **v1.0.0 stable release**
 
 ## Try it in 30 seconds
 
