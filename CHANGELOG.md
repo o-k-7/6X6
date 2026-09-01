@@ -7,29 +7,31 @@ All notable project changes are recorded here.
 ### Planned
 
 - broader real-model evaluation dataset;
-- public standard-runner CI after the repository becomes public;
 - additional community-tested host integrations.
 
-## [0.5.0-rc1] - 2026-08-31
+## [0.5.0] - 2026-09-01
 
 ### Added
 
 - `INSTALL-WITH-AI.txt` so a coding agent can perform its own supported Skill installation;
 - immediate Before -> After example for first-time visitors;
-- clearer two-path Quick Start for chat users and coding-agent users.
+- clearer two-path Quick Start for chat users and coding-agent users;
+- public zero-cost GitHub Actions validation on standard `ubuntu-latest` runners.
 
 ### Changed
 
 - README now demonstrates the result before explaining implementation details;
 - security scanner now uses Python AST inspection for imports and execution/network calls;
 - security scanning covers extensionless UTF-8 project files up to a bounded size;
-- canonical skill metadata bumped to `0.5.0-rc1`.
+- canonical public repository identity aligned to `o-k-7/6X6`;
+- canonical skill metadata promoted to stable `0.5.0`.
 
 ### Security
 
 - added AST detection for process/network imports and dynamic execution;
 - added bearer-token detection and extensionless-file secret scanning;
-- expanded security regression coverage.
+- expanded security regression coverage;
+- public release validation includes unit tests, sample conformance, offline evaluation, security gate, and release gate.
 
 ## [0.4.0-rc1] - 2026-08-31
 
