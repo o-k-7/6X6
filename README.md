@@ -2,6 +2,8 @@
 
 **36 words first. Everything else on demand.**
 
+[![CI](https://github.com/o-k-7/6X6/actions/workflows/ci.yml/badge.svg)](https://github.com/o-k-7/6X6/actions/workflows/ci.yml)
+
 6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands only when you ask.
 
 > Status: **v0.5.0 stable release**
