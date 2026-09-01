@@ -4,7 +4,7 @@
 
 6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands only when you ask.
 
-> Status: **v0.5 public-release candidate**
+> Status: **v0.5.0 stable release**
 
 ## Try it in 30 seconds
 
@@ -90,6 +90,8 @@ python tools/security_check.py
 python tools/release_check.py
 ```
 
+Public CI runs the same validation on standard `ubuntu-latest` GitHub-hosted runners for pushes to `main` and pull requests.
+
 If the optional Agent Skills reference validator is already installed:
 
 ```bash
@@ -114,7 +116,7 @@ The required development, installation and test paths remain usable with **zero 
 
 ## Project policy
 
-Before public release, follow [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md). The project maintains explicit legal, privacy, security, third-party, trademark and contribution-provenance policies.
+Release validation is documented in [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md). The project maintains explicit legal, privacy, security, third-party, trademark and contribution-provenance policies.
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`DCO.md`](DCO.md), and the MIT [`LICENSE`](LICENSE).
 
