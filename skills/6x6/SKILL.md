@@ -4,7 +4,7 @@ description: Give the essential answer first in a low-noise 6x6 format, then exp
 license: MIT
 metadata:
   author: o-k-7
-  version: "0.5.0"
+  version: "1.0.0"
 ---
 
 # 6X6
