@@ -3,7 +3,7 @@ name: 6x6
 description: Give the essential answer first in a low-noise 6x6 format, then expand only when requested. Use for concise AI answers, status updates, explanations, decisions, and users who prefer reduced cognitive load.
 license: MIT
 metadata:
-  author: king-kruk
+  author: o-k-7
   version: "0.5.0-rc1"
 ---
 
