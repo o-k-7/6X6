@@ -23,6 +23,7 @@ First stable public release of 6X6.
 ### Changed
 
 - README now demonstrates the result before explaining implementation details;
+- canonical protocol specification and bundled Skill reference are versioned `1.0.0`;
 - security scanner now uses Python AST inspection for imports and execution/network calls;
 - security scanning covers extensionless UTF-8 project files up to a bounded size;
 - canonical public repository identity aligned to `o-k-7/6X6`;
