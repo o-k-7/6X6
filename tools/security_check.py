@@ -3,7 +3,8 @@
 
 The check scans UTF-8 project files for credential-like material and inspects
 Python ASTs for execution/network capabilities that the reference tools do not
-need.
+need. Network-call detection is import-aware so ordinary local names such as
+``requests`` do not create false positives.
 """
 
 from __future__ import annotations
@@ -81,22 +82,32 @@ def _python_findings(path: Path, rel: str, text: str) -> list[Finding]:
         findings.append(Finding(rel, "invalid Python syntax", 1))
         return findings
 
+    forbidden_bindings: set[str] = set()
+
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             for alias in node.names:
                 if alias.name.startswith(FORBIDDEN_IMPORT_PREFIXES):
                     findings.append(Finding(rel, "network or process import", node.lineno))
+                    forbidden_bindings.add(alias.asname or alias.name.split(".", 1)[0])
         elif isinstance(node, ast.ImportFrom):
             module = node.module or ""
             if module.startswith(FORBIDDEN_IMPORT_PREFIXES):
                 findings.append(Finding(rel, "network or process import", node.lineno))
-        elif isinstance(node, ast.Call):
-            name = _dotted_name(node.func) or ""
-            if name in {"eval", "exec"}:
-                findings.append(Finding(rel, "dynamic execution", node.lineno))
-            elif name == "os.system" or name.startswith("subprocess."):
-                findings.append(Finding(rel, "shell execution", node.lineno))
-            elif name.startswith(("socket.", "requests.", "urllib.request.", "http.client.")):
+                for alias in node.names:
+                    forbidden_bindings.add(alias.asname or alias.name)
+
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        name = _dotted_name(node.func) or ""
+        if name in {"eval", "exec"}:
+            findings.append(Finding(rel, "dynamic execution", node.lineno))
+        elif name == "os.system" or name.startswith("subprocess."):
+            findings.append(Finding(rel, "shell execution", node.lineno))
+        else:
+            root_name = name.split(".", 1)[0]
+            if root_name in forbidden_bindings:
                 findings.append(Finding(rel, "network client", node.lineno))
 
     return findings

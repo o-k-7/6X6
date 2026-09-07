@@ -1,37 +1,45 @@
 # 6X6 Quick Start
 
-You do not need to install software, use Terminal, create an account, or add an API key.
+You do not need to install software, use Terminal, create a 6X6 account, or add a 6X6 API key.
 
-## Choose the easiest path
-
-### I use normal ChatGPT, Claude, Gemini, or another chat app
+## Normal ChatGPT, Claude, Gemini, or another chat app
 
 1. Open `6X6-PROMPT.txt`.
 2. Copy all of it.
-3. Paste it into Custom Instructions, Project Instructions, or the beginning of a chat.
+3. Paste it into the strongest persistent instruction surface the app offers, such as Custom Instructions or Project Instructions.
 4. Ask a normal question.
 
-You are done.
+If the app only supports per-chat instructions, paste the prompt at the beginning of the conversation instead.
 
-### I use a coding agent
+This is **instruction-only mode**. It requests 6X6 by default wherever the host keeps those instructions active, but the third-party host/model still controls instruction priority and can deviate.
+
+## Coding agents
 
 Open `INSTALL-WITH-AI.txt`, copy the instruction, and paste it into your coding agent.
 
-The agent should install the canonical `skills/6x6/` package in its normal user-level skills folder and verify it for you.
+The installer asks the agent to:
 
-If automatic installation is unsupported, use the manual instructions in `docs/INSTALLATION.md`.
+- install the canonical `skills/6x6/` package;
+- add `6X6-PROMPT.txt` to a supported persistent instruction layer when available;
+- verify what activation level was actually achieved.
+
+If automatic installation is unsupported, use `docs/INSTALLATION.md`.
+
+## Applications you control
+
+If you control model invocation and want stronger enforcement, use the optional `tools/enforce.py` reference adapter. It injects 6X6, validates output, retries repair, and can fail closed instead of releasing a structurally non-compliant Signal.
+
+This **host-enforced mode** is stronger than a prompt alone, but it cannot override provider/system safety policy and its format check does not prove factual correctness.
 
 ## See the difference first
 
-Before installing anything, open `examples/BEFORE_AFTER.md`.
-
-The core idea is:
+Open `examples/BEFORE_AFTER.md`.
 
 ```text
 Signal -> Expand -> Full
 ```
 
-You get the useful answer first. Details remain available when you ask.
+You get the useful answer first. Details remain available when you ask. Full responses are not forced back into the strict Signal target.
 
 ## Test it
 
@@ -47,12 +55,18 @@ Then ask:
 Expand line 2.
 ```
 
-The first reply should stay short. The second should expand only the requested point when its scope is clear.
+Then ask:
 
-## Nothing runs in the background
+```text
+Full explanation.
+```
 
-6X6 is an instruction format. It does not create an account, start a server, read your files by itself, collect analytics, or require a subscription.
+The first reply should be low-noise. The second should expand the requested point. The third should provide a complete useful answer rather than another forced six-line summary.
 
-The repository's optional Python tools are for maintainers and validation only. Normal users do not need to run them.
+## Nothing runs in the background by default
 
-Correctness and safety always override the 6x6 size target.
+Instruction-only 6X6 does not create an account, start a server, read files by itself, collect analytics, or require a 6X6 subscription.
+
+The repository's optional Python validation/enforcement utilities have no bundled provider client or required third-party Python dependency. A host that connects the enforcement adapter to an external model remains responsible for that provider connection and any associated terms or costs.
+
+Correctness, safety, task completion, exact content, and explicit user formats override compression.

@@ -19,6 +19,10 @@ class SecurityCheckTests(unittest.TestCase):
         findings = self._scan_files({"tool.py": "from pathlib import Path\nprint(Path('.'))\n"})
         self.assertEqual(findings, [])
 
+    def test_local_requests_name_is_allowed(self):
+        findings = self._scan_files({"tool.py": "requests = []\nrequests.append('local')\n"})
+        self.assertEqual(findings, [])
+
     def test_shell_execution_is_rejected(self):
         findings = self._scan_files({"tool.py": "import os\nos.system('echo unsafe')\n"})
         self.assertTrue(any(item.category == "shell execution" for item in findings))
