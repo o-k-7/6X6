@@ -4,11 +4,17 @@ Notable stable-line changes are recorded here. Earlier pre-release development h
 
 ## [Unreleased]
 
+No unreleased changes.
+
+## [1.0.2] - 2026-09-07
+
+Hardening release for task completion, host enforcement, evidence handling, and release safety. This release does not claim universal or eight-provider behavioral certification.
+
 ### Added
 
 - optional zero-dependency host-enforcement adapter with persistent protocol injection, output validation, bounded repair retries, semantic-validation hook, and fail-closed behavior;
 - regression coverage for enforcement and incomplete evaluation evidence;
-- strict eight-provider live-acceptance evidence validator that rejects missing, blocked, not-run, duplicate, or partial results.
+- strict eight-provider live-acceptance evidence validator that rejects missing, blocked, not-run, duplicate, malformed, or partial results.
 
 ### Changed
 
