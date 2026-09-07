@@ -4,20 +4,20 @@
 
 [![CI](https://github.com/o-k-7/6X6/actions/workflows/ci.yml/badge.svg)](https://github.com/o-k-7/6X6/actions/workflows/ci.yml)
 
-6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands only when you ask.
+6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands when you ask, without sacrificing correctness, task completion, safety, code, exact values, URLs, or required formats.
 
-> Status: **v1.0.1 stable release** · [Latest release](https://github.com/o-k-7/6X6/releases/latest)
+> Status: **v1 stable line** · [Latest release](https://github.com/o-k-7/6X6/releases/latest)
 
 ## Try it in 30 seconds
 
-No Terminal, Python or 6X6 account required. Your chosen AI host may have its own account, subscription or usage costs.
+No Terminal, Python, or 6X6 account required. Your chosen AI host may have its own account, subscription, or usage costs.
 
 1. Open [`6X6-PROMPT.txt`](6X6-PROMPT.txt).
 2. Copy all of it.
-3. Paste it into your AI tool's Custom Instructions, Project Instructions, or the beginning of a chat.
+3. Paste it into your AI tool's strongest persistent instruction surface: Custom Instructions, Project Instructions, system/developer instructions, or equivalent.
 4. Ask a normal question.
 
-That is enough to try 6X6.
+That is enough to try instruction-only 6X6.
 
 Need help? Open the beginner guide: **[`QUICKSTART.md`](QUICKSTART.md)**.
 
@@ -41,33 +41,66 @@ Then ask `Expand line 3.` when you want the reasoning.
 
 See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full illustrative example.
 
-## Want your AI to install it?
+## Signal → Expand → Full
 
-If you use a coding agent, you do not need to know its skill-folder path.
+Signal targets **6 non-protected lines with up to 6 words per line**. Those are presentation targets, not destructive limits.
 
-1. Open [`INSTALL-WITH-AI.txt`](INSTALL-WITH-AI.txt).
-2. Copy the instruction.
-3. Paste it into your coding agent.
+Ask `expand`, `why`, `details`, `full`, or any ordinary follow-up for more. **Expand and Full are not constrained by the strict Signal target.** If you ask for a complete answer, 6X6 should complete it rather than forcing repeated six-line turns.
 
-The agent can install the canonical `skills/6x6/` package using its normal supported skill location and verify it for you. Review requested file changes and permissions before approving them.
+Correctness, safety, task completion, and explicit user requirements override compression. Code, commands, URLs, exact values, errors, structured data, tool arguments, and safety-critical wording stay intact when shortening would damage them.
 
-Manual installation for Claude Code, Codex, Cursor and other hosts is documented in [`docs/INSTALLATION.md`](docs/INSTALLATION.md). See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) for documented integrations and their validation scope.
+## Make 6X6 the default
 
-## How it works
+Installing a Skill and making it the default are different things.
 
-```text
-Signal -> Expand -> Full
+For the strongest instruction-only setup, use both:
+
+1. the canonical Skill in the host's supported skill directory; and
+2. `6X6-PROMPT.txt` in the strongest persistent instruction layer the host exposes.
+
+This makes 6X6 the requested default, but a third-party host/model can still deviate or apply higher-priority policies. 6X6 does not claim otherwise.
+
+Manual installation for Claude Code, Codex, Cursor, Gemini CLI, and other hosts is documented in [`docs/INSTALLATION.md`](docs/INSTALLATION.md). See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) for the exact meaning of installed, explicitly invoked, persistent-default, and host-enforced modes.
+
+## Host-enforced mode
+
+If you control the application or agent host, 6X6 can be stronger than a prompt alone.
+
+`tools/enforce.py` is a zero-dependency reference adapter that:
+
+- injects the canonical 6X6 instructions for every request;
+- validates returned Signal structure before release;
+- retries with an explicit repair instruction;
+- supports a host-provided semantic/task validator;
+- can fail closed instead of releasing non-compliant output.
+
+```python
+from tools.enforce import enforce
+
+result = enforce(
+    invoke_model,
+    "Explain why the sky appears blue.",
+    max_retries=2,
+    fail_closed=True,
+)
+print(result.output)
 ```
 
-Signal targets **6 non-protected lines with up to 6 words per line**. Ask `expand`, `why`, `details`, `full`, or any normal follow-up for more.
+The host supplies `invoke_model`; 6X6 does not bundle provider credentials, SDKs, networking, or a paid inference service. Host-enforced mode cannot override provider/system safety policy, and formatting checks alone cannot prove factual correctness.
 
-Correctness and safety always override compression. Code, URLs, exact values, errors and safety-critical wording stay intact when shortening would damage them.
+## Want your AI to install it?
 
-6X6 is not a medical or diagnostic tool and does not claim that 36 words is scientifically optimal. See [`LEGAL.md`](LEGAL.md).
+If you use a coding agent:
+
+1. open [`INSTALL-WITH-AI.txt`](INSTALL-WITH-AI.txt);
+2. copy the instruction;
+3. paste it into your coding agent.
+
+The agent can install the canonical `skills/6x6/` package using its normal supported skill location and verify it. Review requested file changes and permissions before approving them.
 
 ## What gets installed?
 
-The Skill itself is declarative Markdown plus host metadata:
+The Skill itself is declarative Markdown plus optional host metadata:
 
 ```text
 skills/6x6/
@@ -76,9 +109,9 @@ skills/6x6/
 └── references/SPEC.md
 ```
 
-It does not start a server, create an account, install a runtime, collect analytics, or require a 6X6 cloud service.
+Instruction-only installation does not start a server, create an account, install a runtime, collect analytics, or require a 6X6 cloud service.
 
-The optional Python tools in this repository are maintainer/test utilities. Normal users do not need them.
+The optional Python tools are maintainer/integration utilities. Normal chat users do not need them.
 
 ## Developer validation
 
@@ -92,7 +125,7 @@ python tools/security_check.py
 python tools/release_check.py
 ```
 
-Public CI runs the same validation on standard `ubuntu-latest` GitHub-hosted runners for pushes to `main` and pull requests.
+Public CI runs deterministic validation on standard `ubuntu-latest` GitHub-hosted runners for pushes to `main` and pull requests.
 
 If the optional Agent Skills reference validator is already installed:
 
@@ -100,27 +133,35 @@ If the optional Agent Skills reference validator is already installed:
 skills-ref validate skills/6x6
 ```
 
-The official reference validator is not part of the required CI gate. Local structural tests mirror its key constraints; they are not a substitute for an independently verified reference-validator run.
-
-## Security
-
-6X6 is instruction-only. The reference tools read local project text and print validation results. They do not execute model output, call model APIs, open sockets, run shell commands, modify system configuration, install software, or send telemetry.
-
-The repository includes a zero-dependency security gate for credential-like material and forbidden execution/network primitives. It is a bounded static check, not a comprehensive security audit or guarantee that all secrets or vulnerabilities can be detected. See [`SECURITY.md`](SECURITY.md).
+The official reference validator is not bundled and is not replaced by local structural tests. A reference-validator pass should only be claimed after that validator actually ran.
 
 ## Evaluation
 
-The offline evaluator measures structural 6X6 compliance and retention of predefined critical terms. It is a deterministic sanity check, not proof that every model preserves every important meaning. The included examples are illustrative, not a real-model benchmark.
+The offline evaluator is deterministic and zero-cost. It now fails strict evaluation when required cases are missing and never converts `blocked`, `not_run`, duplicate, unknown, or partial evidence into a pass.
 
-Real-model claims require recorded model/version/prompt evidence before publication.
+It still is **not a real-model benchmark**. Structural compliance and critical-term retention are engineering signals, not proof of factual correctness or universal compatibility.
+
+Cross-model acceptance requires recorded evidence for the exact provider, model ID/version, runtime, instruction placement, prompt hash, raw input/output, retries, and scenario set. See [`docs/MODEL_ACCEPTANCE.md`](docs/MODEL_ACCEPTANCE.md).
+
+## Security and privacy
+
+The repository's reference Python code has no required third-party dependency, telemetry, bundled credential, or provider SDK. `tools/enforce.py` accepts a host-supplied callable; any network/provider access belongs to that host integration.
+
+`python tools/security_check.py` is a bounded static gate for credential-like material and unexpected execution/network primitives. It is not a comprehensive security audit. See [`SECURITY.md`](SECURITY.md) and [`PRIVACY.md`](PRIVACY.md).
+
+## Legal and claims
+
+6X6 is not a medical or diagnostic tool and does not claim that 36 words is scientifically optimal. It does not claim guaranteed compliance across every model or host.
+
+The project is independently maintained and references third-party product names descriptively for interoperability. See [`LEGAL.md`](LEGAL.md), [`TRADEMARKS.md`](TRADEMARKS.md), and [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
 ## Zero-cost principle
 
-The required development, installation and test paths remain usable with **zero paid 6X6 infrastructure**: no required paid API, hosted database, deployment platform, third-party Python dependency, or paid CI requirement.
+Required 6X6 installation and deterministic validation use **zero paid 6X6 infrastructure**: no required paid API, hosted database, deployment platform, third-party Python dependency, or paid CI runner.
 
-## Project policy
+Live external-model acceptance may involve provider-specific accounts or costs. The project must not silently create such costs or claim a live pass when access was unavailable.
 
-Release validation is documented in [`docs/RELEASE_CHECKLIST.md`](docs/RELEASE_CHECKLIST.md). The project maintains explicit legal, privacy, security, third-party, trademark and contribution-provenance policies.
+## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`DCO.md`](DCO.md), and the MIT [`LICENSE`](LICENSE).
 
