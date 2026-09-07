@@ -3,7 +3,7 @@
 6X6 supports two installation modes.
 
 - **Instruction-only**: install the Skill or persistent prompt. This is the simplest option, but the host/model can still deviate.
-- **Host-enforced**: the host always injects 6X6, validates the returned Signal, retries repair, and can fail closed instead of releasing non-compliant output.
+- **Host-enforced**: the host injects 6X6 in its strongest supported instruction layer, validates the returned Signal, retries repair, and can fail closed instead of releasing non-compliant output.
 
 Neither mode can override higher-priority provider/system safety policies.
 
@@ -115,14 +115,17 @@ This is instruction-only mode. The model may still deviate because the chat host
 
 ## Host-enforced mode
 
-Applications and agent hosts that control model invocation can use `tools/enforce.py` as a reference enforcement layer. It has no provider dependency and accepts any callable that maps a prompt to text.
+Applications and agent hosts that control model invocation can use `tools/enforce.py` as a provider-neutral reference enforcement layer. It passes a structured `ModelRequest` to your integration so the canonical protocol and user content do not need to be collapsed into the same message.
 
 ```python
-from tools.enforce import enforce
+from tools.enforce import ModelRequest, enforce
 
 
-def invoke_model(prompt: str) -> str:
-    # Call your provider here using credentials managed by your host.
+def invoke_model(request: ModelRequest) -> str:
+    # Map request.system_instruction to the strongest system/developer
+    # instruction field your provider supports.
+    # Map request.user_content to the user role.
+    # On retries, also include request.repair_instruction and prior_output.
     ...
 
 result = enforce(
@@ -136,13 +139,18 @@ print(result.output)
 
 The adapter:
 
-1. injects the canonical 6X6 prompt for every request;
-2. validates deterministic Signal structure;
-3. retries with an explicit repair prompt;
-4. optionally runs a host-provided semantic validator;
-5. fails closed when compliance cannot be established.
+1. supplies the canonical 6X6 system instruction on every attempt;
+2. keeps the user request separately addressable by the host;
+3. validates deterministic structure before releasing Signal responses;
+4. retries with an explicit repair instruction;
+5. optionally runs a host-provided semantic/task validator;
+6. fails closed when acceptable output cannot be established.
 
-This is the strongest reference mode in the repository because a non-compliant answer does not have to be released to the user. It still cannot force a provider/model to violate higher-priority policy, and deterministic formatting checks alone cannot prove factual correctness or task completion.
+`Expand` and `Full` deliberately bypass the strict Signal size checker. They still receive persistent 6X6 instructions and optional semantic validation, but are allowed to be complete responses as required by the protocol.
+
+For providers exposing only a single text prompt, `ModelRequest.as_single_prompt()` offers a fallback rendering. That fallback cannot create a real instruction hierarchy; role-separated provider APIs are stronger and are preferred when available.
+
+This is the strongest reference mode in the repository because a non-compliant Signal does not have to be released to the user. It still cannot force a provider/model to violate higher-priority policy, and deterministic formatting checks alone cannot prove factual correctness or task completion.
 
 ## Verify installation
 
@@ -158,9 +166,15 @@ Then ask:
 Expand line 2.
 ```
 
-The first reply should be low-noise and concise. The second should expand only the requested point when its scope is clear.
+Then ask:
 
-For host-enforced mode, also deliberately return a non-compliant fixture from your test model callable and verify that the adapter retries and eventually raises `EnforcementError` when fail-closed behavior is enabled.
+```text
+Full explanation.
+```
+
+The first reply should be low-noise and concise. Expand should focus on the requested point. Full should remain complete rather than being squeezed back into the Signal target.
+
+For host-enforced mode, deliberately return a non-compliant Signal fixture from your test model callable and verify that the adapter retries and eventually raises `EnforcementError` when fail-closed behavior is enabled. Also verify that a long Full response is released without Signal-size rejection.
 
 ## Uninstall
 
