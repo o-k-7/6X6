@@ -9,6 +9,16 @@ All notable project changes are recorded here.
 - broader real-model evaluation dataset;
 - additional community-tested host integrations.
 
+## [1.0.1] - 2026-09-07
+
+Patch release for public distribution consistency. No protocol behavior changes.
+
+### Fixed
+
+- release snapshot now includes the v1.0.0 specification alignment completed after the original release;
+- compatibility wording distinguishes documented integrations from verified live model behavior;
+- release notes and validation scope clarify the limits of automated checks.
+
 ## [1.0.0] - 2026-09-01
 
 First stable public release of 6X6.

@@ -6,18 +6,18 @@
 
 6X6 is an open, model-agnostic progressive-disclosure protocol for AI assistants. It puts the useful part first, then expands only when you ask.
 
-> Status: **v1.0.0 stable release**
+> Status: **v1.0.1 stable release** · [Latest release](https://github.com/o-k-7/6X6/releases/latest)
 
 ## Try it in 30 seconds
 
-No Terminal. No Python. No API key. No account. No subscription.
+No Terminal, Python or 6X6 account required. Your chosen AI host may have its own account, subscription or usage costs.
 
 1. Open [`6X6-PROMPT.txt`](6X6-PROMPT.txt).
 2. Copy all of it.
 3. Paste it into your AI tool's Custom Instructions, Project Instructions, or the beginning of a chat.
 4. Ask a normal question.
 
-That is enough to use 6X6.
+That is enough to try 6X6.
 
 Need help? Open the beginner guide: **[`QUICKSTART.md`](QUICKSTART.md)**.
 
@@ -39,7 +39,7 @@ Merge when everything passes.
 
 Then ask `Expand line 3.` when you want the reasoning.
 
-See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full example.
+See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full illustrative example.
 
 ## Want your AI to install it?
 
@@ -49,9 +49,9 @@ If you use a coding agent, you do not need to know its skill-folder path.
 2. Copy the instruction.
 3. Paste it into your coding agent.
 
-The agent can install the canonical `skills/6x6/` package using its normal supported skill location and verify it for you.
+The agent can install the canonical `skills/6x6/` package using its normal supported skill location and verify it for you. Review requested file changes and permissions before approving them.
 
-Manual installation for Claude Code, Codex, Cursor and other hosts is documented in [`docs/INSTALLATION.md`](docs/INSTALLATION.md). See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) for the support matrix.
+Manual installation for Claude Code, Codex, Cursor and other hosts is documented in [`docs/INSTALLATION.md`](docs/INSTALLATION.md). See [`docs/COMPATIBILITY.md`](docs/COMPATIBILITY.md) for documented integrations and their validation scope.
 
 ## How it works
 
@@ -100,15 +100,17 @@ If the optional Agent Skills reference validator is already installed:
 skills-ref validate skills/6x6
 ```
 
+The official reference validator is not part of the required CI gate. Local structural tests mirror its key constraints; they are not a substitute for an independently verified reference-validator run.
+
 ## Security
 
 6X6 is instruction-only. The reference tools read local project text and print validation results. They do not execute model output, call model APIs, open sockets, run shell commands, modify system configuration, install software, or send telemetry.
 
-The repository includes a zero-dependency security gate for credential-like material and forbidden execution/network primitives. See [`SECURITY.md`](SECURITY.md).
+The repository includes a zero-dependency security gate for credential-like material and forbidden execution/network primitives. It is a bounded static check, not a comprehensive security audit or guarantee that all secrets or vulnerabilities can be detected. See [`SECURITY.md`](SECURITY.md).
 
 ## Evaluation
 
-The offline evaluator measures structural 6X6 compliance and retention of predefined critical terms. It is a deterministic sanity check, not proof that every model preserves every important meaning.
+The offline evaluator measures structural 6X6 compliance and retention of predefined critical terms. It is a deterministic sanity check, not proof that every model preserves every important meaning. The included examples are illustrative, not a real-model benchmark.
 
 Real-model claims require recorded model/version/prompt evidence before publication.
 

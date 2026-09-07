@@ -1,21 +1,21 @@
 # Compatibility
 
-6X6 is model-agnostic. The portable core is the Agent Skills `SKILL.md` package plus the universal prompt fallback.
+6X6 is model-agnostic: its instructions are portable, but model behavior and host support must be verified separately.
 
-| Host | Native Skill path | Status | Notes |
+| Host | Installation | Status | Notes |
 | --- | --- | --- | --- |
-| Claude Code | `.claude/skills/6x6/` | Supported | Follows Agent Skills; supports project and personal skills. |
-| Codex | `.agents/skills/6x6/` | Supported | Uses Agent Skills and supports explicit `$6x6` invocation. |
-| Cursor | `.cursor/skills/6x6/` or `.agents/skills/6x6/` | Supported | Cursor discovers both native and shared Agent Skills locations. |
-| ChatGPT / Codex skill UI | packaged skill | Compatible metadata included | `agents/openai.yaml` provides optional OpenAI host metadata. |
-| Gemini CLI | host-version dependent | Fallback supported | Use `prompts/universal.md` via `GEMINI.md` when native skill discovery is unavailable or uncertain. |
-| Other LLM/chat hosts | custom/system instructions | Supported fallback | Use `prompts/universal.md`. |
+| Claude Code | `.claude/skills/6x6/` | Documented integration | Project and personal skill locations. |
+| Codex | `.agents/skills/6x6/` | Documented integration | Supports explicit `$6x6` invocation. |
+| Cursor | `.cursor/skills/6x6/` or `.agents/skills/6x6/` | Documented integration | Native and shared skill locations. |
+| OpenAI / Codex | packaged skill | Compatible metadata included | `agents/openai.yaml` is optional host metadata; availability depends on the product and version. |
+| Gemini CLI | host-version dependent | Prompt fallback | Use `prompts/universal.md` via `GEMINI.md` when native skill discovery is unavailable or uncertain. |
+| Other LLM/chat hosts | custom/system instructions | Prompt fallback | Use `prompts/universal.md` where the host permits custom instructions. |
 
-## What "supported" means
+## What compatibility means
 
-For 6X6, support means the host can load the instruction package without requiring paid 6X6 infrastructure. It does not guarantee every model will follow the format perfectly on every prompt.
+A documented integration identifies an installation mechanism, not a guarantee of successful installation on every host version. The repository does not claim a completed live end-to-end test on every listed host or model. Host-specific availability, permissions and instruction precedence may differ.
 
-Behavior quality must be measured separately with the evaluation harness.
+Model-agnostic means the core does not depend on a particular model vendor. It does not mean every model follows the format perfectly. Behavioral quality requires recorded model/version/prompt evaluations.
 
 ## Portability rule
 
