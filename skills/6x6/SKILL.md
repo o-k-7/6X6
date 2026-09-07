@@ -1,6 +1,6 @@
 ---
 name: 6x6
-description: Give the essential answer first in a low-noise 6x6 format, then expand only when requested. Use for concise AI answers, status updates, explanations, decisions, and users who prefer reduced cognitive load.
+description: Give the essential answer first in a low-noise 6x6 format, then expand on request. Use for concise AI answers, status updates, explanations, decisions, and users who prefer reduced cognitive load.
 license: MIT
 metadata:
   author: o-k-7
@@ -9,55 +9,33 @@ metadata:
 
 # 6X6
 
-Use 6X6 when the user benefits from concise, low-noise output.
+Use 6X6 when the user benefits from concise, low-noise output. The host decides whether to invoke this Skill; installation alone does not guarantee always-on behavior. For a persistent default, use the host's supported instructions or the universal prompt.
 
-## Default response contract
+## Response contract
 
-Start with a **Signal** block that:
+Start with the essential answer or next action. Target no more than 6 non-protected lines and 6 words per non-protected line. These are presentation targets, not destructive constraints.
 
-- contains no more than 6 non-protected lines;
-- targets no more than 6 words per non-protected line;
-- puts the answer or decision first;
-- preserves the most important facts;
-- avoids filler, repetition, and unnecessary framing;
-- stops after Signal unless more detail is necessary or requested.
+Preserve correctness, safety, critical facts, user intent, requested scope, language, format, and level of detail. Do not replace requested work with a short summary. Complete necessary research, tool calls, code changes, tests, and verification before reporting completion. Never claim an action or test succeeded without evidence.
+
+For simple questions, stop after Signal unless more detail is necessary or requested. Avoid filler, repetition, and unsolicited background.
 
 ## Progressive disclosure
 
-Use three layers:
+- **Signal** — essential answer first.
+- **Expand** — focused explanation of the requested scope.
+- **Full** — complete useful detail when requested, without the strict Signal target.
 
-1. **Signal** — essential answer first.
-2. **Expand** — focused explanation when requested.
-3. **Full** — complete detail when requested.
+Recognize natural requests such as `expand`, `details`, `why`, `full`, `explain line 3`, and ordinary follow-ups. Do not force a user who requested a complete answer to ask repeatedly for more.
 
-The user may request expansion naturally, including `expand`, `details`, `why`, `full`, `explain line 3`, or any ordinary follow-up question.
+## Protected content
 
-## Correctness overrides compression
+Never corrupt or omit information necessary for correctness, safety, or successful execution. Protect code, commands, URLs, paths, identifiers, hashes, exact errors, exact values, legal or safety-critical wording, structured data, and user-required formats when shortening would damage them.
 
-Never corrupt or omit information necessary for correctness, safety, or successful execution merely to satisfy 6X6.
-
-Treat these as protected when shortening would damage them:
-
-- source code or shell commands;
-- URLs, file paths, identifiers, hashes, or exact errors;
-- exact numbers, dates, versions, legal or safety-critical wording;
-- tables or structured data requiring stable formatting;
-- formats explicitly required by the user.
-
-Keep exceptions minimal, then return to concise output.
+Do not apply the six-word target to code, structured data, quoted text, creative writing, or other exact formats requested by the user. Do not alter tool arguments or machine-readable output to satisfy the presentation target. Keep exceptions minimal; ordinary prose is not protected merely to bypass the target.
 
 ## Information priority
 
-Prioritize:
-
-1. direct answer or decision;
-2. required user action;
-3. critical constraint or warning;
-4. strongest supporting fact;
-5. next useful option;
-6. optional context only if essential.
-
-Do not add background, throat-clearing, duplicate conclusions, generic caveats, or unsolicited deep dives.
+Prioritize the direct answer, required action, critical constraint, strongest supporting fact, useful next option, then optional context. Move optional context to expansion where appropriate.
 
 ## Style
 
