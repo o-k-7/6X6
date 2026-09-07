@@ -3,15 +3,16 @@
 
 This tool never calls model APIs. It validates evidence produced by an external
 runner. A certification pass requires every required provider and scenario to
-have executed successfully; blocked, not_run, missing, duplicate, or partial
-records fail closed.
+have executed successfully; blocked, not_run, missing, duplicate, malformed, or
+partial records fail closed.
 """
 
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
+import re
+from datetime import date
 from pathlib import Path
 
 REQUIRED_PROVIDERS = (
@@ -39,10 +40,16 @@ REQUIRED_SCENARIOS = (
 )
 
 VALID_STATUS = {"pass", "fail", "blocked", "not_run"}
+VALID_ACTIVATION = {"explicit", "persistent", "host_enforced"}
+SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
-def sha256_text(text: str) -> str:
-    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+def _valid_iso_date(value: str) -> bool:
+    try:
+        date.fromisoformat(value)
+    except (TypeError, ValueError):
+        return False
+    return True
 
 
 def validate(data: dict) -> list[str]:
@@ -67,9 +74,24 @@ def validate(data: dict) -> list[str]:
             errors.append("model record must be an object")
             continue
         provider = item.get("provider", "<unknown>")
-        for field in ("model_id", "model_version", "date", "runtime", "prompt_sha256", "activation"):
+        for field in ("model_id", "model_version", "runtime"):
             if not isinstance(item.get(field), str) or not item[field].strip():
                 errors.append(f"{provider}: missing {field}")
+
+        recorded_date = item.get("date")
+        if not isinstance(recorded_date, str) or not _valid_iso_date(recorded_date):
+            errors.append(f"{provider}: date must be YYYY-MM-DD")
+
+        prompt_hash = item.get("prompt_sha256")
+        if not isinstance(prompt_hash, str) or not SHA256_RE.fullmatch(prompt_hash):
+            errors.append(f"{provider}: prompt_sha256 must be 64 lowercase hex characters")
+
+        activation = item.get("activation")
+        if activation not in VALID_ACTIVATION:
+            errors.append(
+                f"{provider}: activation must be one of " + ", ".join(sorted(VALID_ACTIVATION))
+            )
+
         scenarios = item.get("scenarios")
         if not isinstance(scenarios, list):
             errors.append(f"{provider}: scenarios must be a list")
@@ -78,8 +100,12 @@ def validate(data: dict) -> list[str]:
         if len(ids) != len(set(ids)):
             errors.append(f"{provider}: duplicate scenario records")
         missing = sorted(set(REQUIRED_SCENARIOS) - set(ids))
+        unexpected = sorted(set(ids) - set(REQUIRED_SCENARIOS))
         if missing:
             errors.append(f"{provider}: missing scenarios: {', '.join(missing)}")
+        if unexpected:
+            errors.append(f"{provider}: unexpected scenarios: {', '.join(unexpected)}")
+
         for scenario in scenarios:
             if not isinstance(scenario, dict):
                 errors.append(f"{provider}: scenario must be an object")
@@ -98,7 +124,7 @@ def validate(data: dict) -> list[str]:
                 if not isinstance(scenario.get("output_baseline"), str) or not scenario["output_baseline"].strip():
                     errors.append(f"{provider}/{scenario_id}: missing baseline output")
             retries = scenario.get("retries")
-            if not isinstance(retries, int) or retries < 0:
+            if not isinstance(retries, int) or isinstance(retries, bool) or retries < 0:
                 errors.append(f"{provider}/{scenario_id}: retries must be a non-negative integer")
 
     return errors
