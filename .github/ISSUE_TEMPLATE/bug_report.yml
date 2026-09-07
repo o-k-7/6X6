@@ -1,0 +1,23 @@
+name: Bug report
+description: Report a reproducible problem with 6X6
+title: "bug: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the expected and actual behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the relevant prompt, host/model version and minimal example when possible. Remove secrets and personal data.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: 6X6 version, host, operating system and relevant tool versions.
