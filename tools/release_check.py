@@ -26,12 +26,19 @@ REQUIRED = (
     "SPEC.md",
     "docs/INSTALLATION.md",
     "docs/COMPATIBILITY.md",
+    "docs/MODEL_ACCEPTANCE.md",
     "docs/RELEASE_CHECKLIST.md",
     "skills/6x6/SKILL.md",
     "skills/6x6/references/SPEC.md",
     "skills/6x6/agents/openai.yaml",
     "prompts/universal.md",
+    "tools/check_6x6.py",
+    "tools/evaluate.py",
+    "tools/enforce.py",
+    "tools/live_acceptance.py",
     "tools/security_check.py",
+    "tests/test_enforce.py",
+    "tests/test_live_acceptance.py",
 )
 
 
@@ -71,6 +78,12 @@ def run(root: Path = ROOT) -> list[str]:
         universal_text = universal.read_text(encoding="utf-8")
         if prompt_text not in universal_text:
             errors.append("6X6-PROMPT.txt must match the universal prompt instruction block")
+
+    root_spec = root / "SPEC.md"
+    bundled_spec = root / "skills/6x6/references/SPEC.md"
+    if root_spec.is_file() and bundled_spec.is_file():
+        if root_spec.read_text(encoding="utf-8") != bundled_spec.read_text(encoding="utf-8"):
+            errors.append("bundled Skill SPEC must exactly match root SPEC.md")
 
     installer = root / "INSTALL-WITH-AI.txt"
     if installer.is_file():
