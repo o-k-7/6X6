@@ -141,7 +141,7 @@ class EnforceTests(unittest.TestCase):
         with self.assertRaises(EnforcementError):
             enforce(lambda _request: text, "Answer", protocol=PROTOCOL, max_retries=0)
 
-    def test_lossless_reflow_skipped_for_protected_lines(self):
+    def test_lossless_reflow_skipped_when_protected_layout_exists(self):
         text = "one two three four five six seven eight nine ten"
         with self.assertRaises(EnforcementError):
             enforce(
@@ -150,7 +150,7 @@ class EnforceTests(unittest.TestCase):
                 protocol=PROTOCOL,
                 max_retries=0,
                 allow_lossless_reflow=True,
-                protected_lines={1},
+                protected_lines={2},
             )
 
     def test_full_is_not_forced_through_signal_size_gate(self):
