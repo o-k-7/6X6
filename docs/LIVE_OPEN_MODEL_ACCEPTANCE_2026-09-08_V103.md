@@ -1,4 +1,4 @@
-# Live open-model acceptance — v1.0.3 candidate — 2026-09-08
+# Live open-model acceptance: v1.0.3 candidate, 2026-09-08
 
 Independent local inference on parallel GitHub-hosted Linux runners using Ollama. These are open-weight family representatives, not proprietary hosted-product certification.
 

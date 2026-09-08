@@ -7,7 +7,7 @@ strongest system/developer instruction layer the provider exposes while user
 content stays in the user role.
 
 For Signal responses the adapter validates structure before release, retries with
-an explicit repair instruction, and can fail closed. Expand and Full deliberately
+an explicit repair instruction, and fails closed. Expand and Full deliberately
 skip the strict Signal size gate because the protocol does not constrain those
 modes to 6x6 presentation targets.
 

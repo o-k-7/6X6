@@ -21,9 +21,9 @@ For simple questions, stop after Signal unless more detail is necessary or reque
 
 ## Progressive disclosure
 
-- **Signal** — essential answer first.
-- **Expand** — focused explanation of the requested scope.
-- **Full** — complete useful detail when requested, without the strict Signal target.
+- **Signal**: essential answer first.
+- **Expand**: focused explanation of the requested scope.
+- **Full**: complete useful detail when requested, without the strict Signal target.
 
 Recognize natural requests such as `expand`, `details`, `why`, `full`, `explain line 3`, and ordinary follow-ups. Do not force a user who requested a complete answer to ask repeatedly for more.
 

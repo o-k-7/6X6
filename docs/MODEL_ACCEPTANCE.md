@@ -2,22 +2,14 @@
 
 6X6 is model-agnostic by design, not universally certified. A model is verified only after its actual output has been recorded and evaluated. A passing local fixture is not evidence of model behavior.
 
-## Current acceptance targets
+## Acceptance tracks
 
-The target matrix was refreshed from vendor/model-owner documentation on 2026-09-07. These are test targets, not pass claims.
+The repository keeps two different forms of evidence:
 
-| Provider | Exact target | Selection note |
-| --- | --- | --- |
-| OpenAI | `gpt-5.6-sol` | Current flagship GPT-5.6 model |
-| Anthropic | `claude-opus-5` | Active Opus generation |
-| Google | `gemini-3.8-flash` | Current GA Gemini 3.8 Flash |
-| xAI | `grok-4.6` | Current frontier Grok model |
-| DeepSeek | `deepseek-v4-pro` / version `DeepSeek-V4-Pro-0813` | Current GA V4 Pro |
-| Meta | `meta-llama/Llama-4-Maverick-17B-128E-Instruct` | Meta-published Llama 4 Maverick instruct weights; runtime host must be recorded |
-| Mistral | `mistral-medium-3-5` | Fixed GA Mistral Medium 3.5 generation; avoid floating alias for evidence |
-| Qwen / Alibaba Cloud | `qwen3.8-max-0902` | Current dated Qwen3.8-Max snapshot |
+1. Provider certification targets hosted products from OpenAI, Anthropic, Google, xAI, DeepSeek, Meta, Mistral, and Qwen. `tools/live_acceptance.py` requires ten scenarios for each provider. No complete provider-certification matrix has passed.
+2. The open-model engineering lab uses small local representatives from eight model families. These runs diagnose prompt and enforcement behavior, but do not certify the vendors' hosted products.
 
-Model names and availability change. Re-check official documentation immediately before a future run instead of assuming this table remains current.
+Exact hosted model names are selected from official provider documentation when a run is authorized. They are recorded in the evidence instead of maintained as a time-sensitive list in this document.
 
 ## Required scenarios
 
@@ -72,6 +64,8 @@ A provider with no authorized zero-cost execution path remains `blocked`/`not_ru
 
 ## Current evidence
 
-As of 2026-09-07, this repository audit has not executed a complete independent eight-provider live matrix. The current ChatGPT conversation is not counted as an OpenAI acceptance run, because self-observation is not an independent provider execution under the recorded harness.
+Three eight-family open-model lab runs are recorded under `evidence/`. The final v1.0.3 candidate run completed all 64 scenarios: instruction-only passed 15, host-enforced output passed and was released in 23, and 41 outputs were blocked. No infrastructure error was counted in that run.
 
-The engineering changes in this branch therefore make no 8/8, provider-wide, or universal compatibility claim. A future live certification must pass `tools/live_acceptance.py` with genuine evidence from all required providers and scenarios.
+The final record is validated by `tools/validate_open_evidence.py`. It includes prompts, model identifiers and digests, runtime settings, final outputs, reasoning-presence flags without reasoning text, structural and retention checks, attempts, release decisions, and failure categories.
+
+These results are diagnostic evidence, not an 8/8 pass. The branch makes no provider-wide or universal compatibility claim. A hosted-provider certification still requires genuine evidence from every provider and scenario accepted by `tools/live_acceptance.py`.

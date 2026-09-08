@@ -3,7 +3,7 @@
 6X6 supports two installation modes.
 
 - **Instruction-only**: install the Skill or persistent prompt. This is the simplest option, but the host/model can still deviate.
-- **Host-enforced**: the host injects 6X6 in its strongest supported instruction layer, validates the returned Signal, retries repair, and can fail closed instead of releasing non-compliant output.
+- **Host-enforced**: the host injects 6X6 in its strongest supported instruction layer, validates the returned Signal, retries repair, and fails closed instead of releasing non-compliant output.
 
 Neither mode can override higher-priority provider/system safety policies.
 

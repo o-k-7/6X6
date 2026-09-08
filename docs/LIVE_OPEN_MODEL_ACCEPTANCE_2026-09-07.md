@@ -1,4 +1,4 @@
-# Live open-model acceptance — 2026-09-07
+# Live open-model acceptance: 2026-09-07
 
 Independent local inference on parallel GitHub-hosted Linux runners using Ollama. This is open-weight family coverage, not certification of proprietary ChatGPT, Claude, Gemini, or other hosted products.
 

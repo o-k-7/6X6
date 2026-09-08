@@ -1,6 +1,6 @@
-# Live open-model acceptance — v1.0.3 final candidate
+# Live open-model acceptance: v1.0.3 final candidate
 
-Run: [34261230323](https://github.com/o-k-7/6X6/actions/runs/34261230323)  
+Run: [34261230323](https://github.com/o-k-7/6X6/actions/runs/34261230323)
 Tested commit: `9d52858aede22d50d96d28befee6233584130d80`
 
 This run used local Ollama inference on eight parallel GitHub-hosted Linux runners. It separated final content from model reasoning, never recorded reasoning text, used a 2,048-token output budget for DeepSeek R1, recorded model digests exposed by Ollama, and classified provider failures separately from blocked output.

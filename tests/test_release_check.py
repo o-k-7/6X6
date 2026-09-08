@@ -41,6 +41,24 @@ class ReleaseCheckTests(unittest.TestCase):
         self.assertIn("tools/live_acceptance.py", REQUIRED)
         self.assertIn("docs/MODEL_ACCEPTANCE.md", REQUIRED)
 
+    def test_invalid_evidence_json_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evidence = root / "evidence"
+            evidence.mkdir()
+            (evidence / "broken.json").write_text("truncated", encoding="utf-8")
+            errors = run(root)
+        self.assertIn("invalid evidence JSON: broken.json", errors)
+
+    def test_non_object_evidence_is_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            evidence = root / "evidence"
+            evidence.mkdir()
+            (evidence / "array.json").write_text("[]", encoding="utf-8")
+            errors = run(root)
+        self.assertIn("evidence must be a JSON object: array.json", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

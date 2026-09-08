@@ -146,7 +146,7 @@ Host-enforced mode MUST NOT be described as capable of overriding higher-priorit
 
 **Strict 6X6 compliant**: Signal compliant and every non-protected Signal line contains at most 6 words.
 
-**Host-enforced compliant**: the host applies persistent injection, pre-release validation, bounded retry, and fail-closed or explicit non-compliance behavior. This level describes the host integration, not guaranteed model obedience.
+**Host-enforced compliant**: the host applies persistent injection, pre-release validation, bounded retry, and fail-closed release control. This level describes the host integration, not guaranteed model obedience.
 
 ## 9. Design principle
 

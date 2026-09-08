@@ -21,7 +21,7 @@ That is enough to try instruction-only 6X6.
 
 Need help? Open the beginner guide: **[`QUICKSTART.md`](QUICKSTART.md)**.
 
-## Before → After
+## Before and after
 
 **Before**
 
@@ -41,11 +41,11 @@ Then ask `Expand line 3.` when you want the reasoning.
 
 See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full illustrative example.
 
-## Signal → Expand → Full
+## Signal, Expand, Full
 
 Signal targets **6 non-protected lines with up to 6 words per line**. Those are presentation targets, not destructive limits.
 
-Ask `expand`, `why`, `details`, `full`, or any ordinary follow-up for more. **Expand and Full are not constrained by the strict Signal target.** If you ask for a complete answer, 6X6 should complete it rather than forcing repeated six-line turns.
+Ask `Expand`, `Details`, or `Full` when you want more. A host may also route an ordinary follow-up to an expanded response. **Expand and Full are not constrained by the strict Signal target.** If you ask for a complete answer, 6X6 should complete it rather than forcing repeated six-line turns.
 
 Correctness, safety, task completion, and explicit user requirements override compression. Code, commands, URLs, exact values, errors, structured data, tool arguments, and safety-critical wording stay intact when shortening would damage them.
 
@@ -166,7 +166,5 @@ Live external-model acceptance may involve provider-specific accounts or costs. 
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`DCO.md`](DCO.md), and the MIT [`LICENSE`](LICENSE).
-
----
 
 **36 words first. Everything else on demand.**

@@ -69,7 +69,7 @@ First stable public release of 6X6.
 
 ### Protocol
 
-- Signal → Expand → Full progressive disclosure;
+- Signal, Expand, Full progressive disclosure;
 - six-line / six-word Signal presentation targets for non-protected prose;
 - correctness and protected content override compression;
 - code, commands, URLs, exact values, errors, safety-critical wording, and required formats remain intact when shortening would damage them.

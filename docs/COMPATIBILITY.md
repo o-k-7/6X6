@@ -21,10 +21,10 @@ A documented integration identifies a supported or documented installation mecha
 
 Use precise language when describing an installation:
 
-- **installed** — the Skill/prompt exists in a host-supported location;
-- **explicitly invoked** — the user/host selected 6X6 for the request;
-- **persistent default** — the host places 6X6 in a persistent instruction layer;
-- **host-enforced** — the host validates before release and retries/fails closed.
+- **installed**: the Skill/prompt exists in a host-supported location;
+- **explicitly invoked**: the user/host selected 6X6 for the request;
+- **persistent default**: the host places 6X6 in a persistent instruction layer;
+- **host-enforced**: the host validates before release and retries/fails closed.
 
 Do not call a Skill `always-on` solely because it is installed.
 
