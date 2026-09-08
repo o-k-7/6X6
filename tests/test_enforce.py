@@ -1,6 +1,13 @@
 import unittest
 
-from tools.enforce import EnforcementError, ModelRequest, enforce, resolve_mode
+from tools.enforce import (
+    EnforcementError,
+    ModelRequest,
+    build_system_instruction,
+    enforce,
+    lossless_reflow_signal,
+    resolve_mode,
+)
 
 
 PROTOCOL = "Use 6X6. Target six lines and six words."
@@ -18,10 +25,25 @@ class EnforceTests(unittest.TestCase):
         self.assertEqual(result.output, "Ship after tests pass.")
         self.assertEqual(result.response_mode, "signal")
         self.assertEqual(len(result.attempts), 1)
-        self.assertEqual(calls[0].system_instruction, PROTOCOL)
+        self.assertTrue(calls[0].system_instruction.startswith(PROTOCOL))
+        self.assertIn("HOST ENFORCEMENT CONTRACT", calls[0].system_instruction)
         self.assertEqual(calls[0].user_content, "Should I ship?")
         self.assertEqual(calls[0].attempt, 1)
         self.assertIsNone(calls[0].repair_instruction)
+
+    def test_host_contract_can_be_disabled(self):
+        requests = []
+        enforce(
+            lambda request: requests.append(request) or "Short answer.",
+            "Answer",
+            protocol=PROTOCOL,
+            host_contract=False,
+        )
+        self.assertEqual(requests[0].system_instruction, PROTOCOL)
+
+    def test_build_system_instruction_rejects_empty_protocol(self):
+        with self.assertRaises(ValueError):
+            build_system_instruction("   ")
 
     def test_noncompliant_signal_is_repaired(self):
         outputs = [
@@ -37,9 +59,37 @@ class EnforceTests(unittest.TestCase):
         result = enforce(invoke, "Should I ship?", protocol=PROTOCOL, max_retries=1)
         self.assertEqual(len(result.attempts), 2)
         self.assertIn("Repair the prior answer", requests[1].repair_instruction)
-        self.assertIn("6X6 Signal", requests[1].repair_instruction)
-        self.assertEqual(requests[1].prior_output, requests[0] and result.attempts[0].output)
+        self.assertIn("six non-protected", requests[1].repair_instruction)
+        self.assertEqual(requests[1].prior_output, result.attempts[0].output)
         self.assertTrue(result.attempts[-1].structural.compliant)
+
+    def test_empty_response_is_retried(self):
+        outputs = ["", "Recovered answer."]
+        requests = []
+
+        def invoke(request: ModelRequest):
+            requests.append(request)
+            return outputs.pop(0)
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.output, "Recovered answer.")
+        self.assertEqual(len(result.attempts), 2)
+        self.assertFalse(result.attempts[0].nonempty)
+        self.assertIn("prior response was empty", requests[1].repair_instruction)
+
+    def test_repeated_empty_response_fails_closed(self):
+        with self.assertRaises(EnforcementError):
+            enforce(lambda _request: "", "Answer", protocol=PROTOCOL, max_retries=1)
+
+    def test_non_text_response_is_retryable(self):
+        outputs = [None, "Recovered."]
+
+        def invoke(_request):
+            return outputs.pop(0)
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.output, "Recovered.")
+        self.assertEqual(len(result.attempts), 2)
 
     def test_fail_closed_blocks_noncompliant_signal(self):
         def invoke(_request: ModelRequest):
@@ -63,6 +113,45 @@ class EnforceTests(unittest.TestCase):
         )
         self.assertEqual(len(result.attempts), 2)
         self.assertIn("Do not merge", result.output)
+
+    def test_lossless_reflow_preserves_tokens(self):
+        original = "one two three four five six seven eight nine ten"
+        reflowed = lossless_reflow_signal(original)
+        self.assertEqual(reflowed.split(), original.split())
+        self.assertEqual(reflowed, "one two three four five six\nseven eight nine ten")
+
+    def test_lossless_reflow_rejects_more_than_36_tokens(self):
+        self.assertIsNone(lossless_reflow_signal(" ".join(["word"] * 37)))
+
+    def test_lossless_reflow_can_release_structural_failure(self):
+        text = "one two three four five six seven eight nine ten"
+        result = enforce(
+            lambda _request: text,
+            "Answer",
+            protocol=PROTOCOL,
+            max_retries=0,
+            allow_lossless_reflow=True,
+        )
+        self.assertTrue(result.attempts[0].reflowed)
+        self.assertTrue(result.attempts[0].structural.compliant)
+        self.assertEqual(result.output.split(), text.split())
+
+    def test_lossless_reflow_disabled_by_default(self):
+        text = "one two three four five six seven eight nine ten"
+        with self.assertRaises(EnforcementError):
+            enforce(lambda _request: text, "Answer", protocol=PROTOCOL, max_retries=0)
+
+    def test_lossless_reflow_skipped_for_protected_lines(self):
+        text = "one two three four five six seven eight nine ten"
+        with self.assertRaises(EnforcementError):
+            enforce(
+                lambda _request: text,
+                "Answer",
+                protocol=PROTOCOL,
+                max_retries=0,
+                allow_lossless_reflow=True,
+                protected_lines={1},
+            )
 
     def test_full_is_not_forced_through_signal_size_gate(self):
         long_full = " ".join(["detailed"] * 80)
