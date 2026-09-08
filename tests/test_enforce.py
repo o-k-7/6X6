@@ -98,6 +98,34 @@ class EnforceTests(unittest.TestCase):
         with self.assertRaises(EnforcementError):
             enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
 
+    def test_fail_open_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unsafe"):
+            enforce(lambda _request: "invalid output with more than six words on one line", "Answer", protocol=PROTOCOL, fail_closed=False)
+
+    def test_provider_timeout_is_recorded_and_retried(self):
+        calls = 0
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise TimeoutError("secret provider detail")
+            return "Recovered."
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].failure_reason, "timeout")
+        self.assertEqual(result.output, "Recovered.")
+
+    def test_provider_error_is_classified_without_message(self):
+        calls = 0
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise ConnectionError("token=do-not-log")
+            return "Recovered."
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].provider_error, "provider_error:ConnectionError")
+        self.assertNotIn("do-not-log", repr(result.attempts[0]))
+
     def test_semantic_validator_can_force_retry(self):
         outputs = ["Tests pass.", "Do not merge.\nTests still fail."]
 
@@ -122,6 +150,19 @@ class EnforceTests(unittest.TestCase):
 
     def test_lossless_reflow_rejects_more_than_36_tokens(self):
         self.assertIsNone(lossless_reflow_signal(" ".join(["word"] * 37)))
+
+    def test_lossless_reflow_rejects_protected_content(self):
+        protected = (
+            "Visit https://example.com now please today soon",
+            "Run python tools/check_6x6.py now please today",
+            "Retry 2 times before failing safely now",
+            '{"answer": "one two three four five six seven"}',
+            "| one | two | three | four | five | six | seven |",
+            "first line\nsecond line with seven ordinary prose words here",
+        )
+        for value in protected:
+            with self.subTest(value=value):
+                self.assertIsNone(lossless_reflow_signal(value))
 
     def test_lossless_reflow_can_release_structural_failure(self):
         text = "one two three four five six seven eight nine ten"
@@ -219,6 +260,8 @@ class EnforceTests(unittest.TestCase):
         self.assertEqual(resolve_mode("Answer normally", "auto"), "signal")
         self.assertEqual(resolve_mode("Expand line 2", "auto"), "expand")
         self.assertEqual(resolve_mode("Give me the full explanation", "auto"), "full")
+        self.assertEqual(resolve_mode("Why is DNS caching useful?", "auto"), "signal")
+        self.assertEqual(resolve_mode("Explain this briefly", "auto"), "signal")
 
     def test_empty_prompt_is_rejected(self):
         with self.assertRaises(ValueError):

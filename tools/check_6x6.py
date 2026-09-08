@@ -39,7 +39,7 @@ def check_signal(text: str, protected_lines: set[int] | None = None) -> CheckRes
     present_protected = tuple(number for number, _ in content if number in protected)
 
     return CheckResult(
-        compliant=len(target) <= 6 and not violations,
+        compliant=bool(content) and len(target) <= 6 and not violations,
         content_lines=len(content),
         target_lines=len(target),
         protected_lines=present_protected,

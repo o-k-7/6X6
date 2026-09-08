@@ -50,6 +50,10 @@ sacrifice correctness or required exact content to satisfy formatting.
 class EnforcementError(RuntimeError):
     """Raised when fail-closed enforcement cannot obtain an acceptable response."""
 
+    def __init__(self, message: str, attempts: tuple = ()) -> None:
+        super().__init__(message)
+        self.attempts = attempts
+
 
 @dataclass(frozen=True)
 class ModelRequest:
@@ -99,6 +103,8 @@ class Attempt:
     semantic_ok: bool
     nonempty: bool = True
     reflowed: bool = False
+    failure_reason: str | None = None
+    provider_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -112,8 +118,15 @@ ModelCallable = Callable[[ModelRequest], str]
 SemanticValidator = Callable[[str], bool]
 
 
-_FULL_RE = re.compile(r"(?:^|\b)(?:full|full explanation|complete|complete answer|in full)(?:\b|$)", re.IGNORECASE)
-_EXPAND_RE = re.compile(r"(?:^|\b)(?:expand|details|detail|explain|why)(?:\b|$)", re.IGNORECASE)
+_FULL_RE = re.compile(
+    r"(?:^\s*(?:full(?: explanation| answer)?|complete answer|in full)\s*[:,-]?|\b(?:the )?full explanation\b)",
+    re.IGNORECASE,
+)
+_EXPAND_RE = re.compile(r"^\s*(?:expand|details?|explain in detail)\s*[:,-]?\s*", re.IGNORECASE)
+_UNSAFE_REFLOW_RE = re.compile(
+    r"(?:https?://|www\.|`|\$\s|^[\[{]|[\]}]\s*$|\|.*\||\b(?:curl|wget|python|bash|sh|pwsh|cmd|sudo|git)\b|\d)",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def load_protocol(path: str | Path = "6X6-PROMPT.txt") -> str:
@@ -156,6 +169,11 @@ def lossless_reflow_signal(text: str) -> str | None:
     must disable it when whitespace itself is protected (for example code,
     structured data, poetry, or a user-required exact layout).
     """
+    # Reflow is only safe for one-line, ordinary prose. Anything that resembles
+    # code, a command, structured data, a table, a URL, a number, or intentional
+    # layout must be validated/retried without whitespace mutation.
+    if "\n" in text or "\r" in text or _UNSAFE_REFLOW_RE.search(text):
+        return None
     tokens = text.split()
     if not tokens or len(tokens) > 36:
         return None
@@ -217,6 +235,8 @@ def enforce(
     """
     if max_retries < 0:
         raise ValueError("max_retries must be >= 0")
+    if fail_closed is not True:
+        raise ValueError("fail_closed=False is unsafe and no longer supported")
     if not isinstance(user_prompt, str) or not user_prompt.strip():
         raise ValueError("user_prompt must not be empty")
 
@@ -236,7 +256,15 @@ def enforce(
             repair_instruction=repair,
             prior_output=prior_output,
         )
-        raw = invoke(request)
+        provider_error = None
+        try:
+            raw = invoke(request)
+        except TimeoutError:
+            raw = None
+            provider_error = "timeout"
+        except (ConnectionError, OSError, RuntimeError, ValueError) as exc:
+            raw = None
+            provider_error = f"provider_error:{type(exc).__name__}"
         output = raw if isinstance(raw, str) else ""
         nonempty = bool(output.strip())
 
@@ -262,7 +290,21 @@ def enforce(
                     semantic_ok = repaired_semantic
                     reflowed = True
 
-        attempt = Attempt(number, output, mode, structural, semantic_ok, nonempty=nonempty, reflowed=reflowed)
+        if provider_error:
+            failure_reason = provider_error
+        elif not nonempty:
+            failure_reason = "empty" if isinstance(raw, str) else "non_text"
+        elif structural is not None and not structural.compliant:
+            failure_reason = "structural"
+        elif not semantic_ok:
+            failure_reason = "semantic"
+        else:
+            failure_reason = None
+        attempt = Attempt(
+            number, output, mode, structural, semantic_ok,
+            nonempty=nonempty, reflowed=reflowed,
+            failure_reason=failure_reason, provider_error=provider_error,
+        )
         attempts.append(attempt)
 
         structure_ok = structural.compliant if structural is not None else (mode != "signal" and nonempty)
@@ -277,6 +319,4 @@ def enforce(
         f"6X6 enforcement failed after {len(attempts)} attempt(s); "
         "host refused to release an unacceptable response"
     )
-    if fail_closed:
-        raise EnforcementError(message)
-    return EnforcementResult(output=attempts[-1].output, response_mode=mode, attempts=tuple(attempts))
+    raise EnforcementError(message, tuple(attempts))

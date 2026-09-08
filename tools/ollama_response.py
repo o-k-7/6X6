@@ -24,4 +24,18 @@ def final_content(payload: dict) -> tuple[str, bool]:
         content = ""
     if not isinstance(content, str):
         raise ModelResponseError("Ollama final content must be text")
-    return content, bool(message.get("thinking"))
+    thinking = message.get("thinking")
+    return content, isinstance(thinking, str) and bool(thinking.strip())
+
+
+def model_identity(payload: dict) -> tuple[str, str | None]:
+    """Extract the model identifier and optional digest without guessing."""
+    if not isinstance(payload, dict):
+        raise ModelResponseError("Ollama response must be an object")
+    model = payload.get("model")
+    if not isinstance(model, str) or not model.strip():
+        raise ModelResponseError("Ollama response has no model identifier")
+    digest = payload.get("digest")
+    if digest is not None and not isinstance(digest, str):
+        raise ModelResponseError("Ollama digest must be text when present")
+    return model, digest
