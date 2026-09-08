@@ -4,7 +4,21 @@ Notable stable-line changes are recorded here. Earlier pre-release development h
 
 ## [Unreleased]
 
-No unreleased changes.
+### Fixed
+
+- empty Signal output can no longer pass the structural checker;
+- fail-open release is rejected instead of returning unvalidated output;
+- provider and validation failure categories are recorded separately;
+- Ollama final content is separated from private reasoning;
+- ordinary `why` questions no longer imply Expand;
+- optional reflow rejects protected and exact-format content.
+
+### Evidence
+
+- final eight-family run `34261230323` completed on `9d52858a`;
+- instruction-only passed 15/64; host-enforced released 23/64;
+- 41 outputs were blocked; infrastructure errors were zero;
+- results do not justify v1.0.3 publication.
 
 ## [1.0.2] - 2026-09-07
 

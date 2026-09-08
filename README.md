@@ -72,7 +72,7 @@ If you control the application or agent host, 6X6 can be stronger than a prompt 
 - validates returned Signal structure before release;
 - retries with an explicit repair instruction;
 - supports a host-provided semantic/task validator;
-- can fail closed instead of releasing non-compliant output.
+- fails closed instead of releasing non-compliant output.
 
 ```python
 from tools.enforce import enforce
@@ -87,6 +87,8 @@ print(result.output)
 ```
 
 The host supplies `invoke_model`; 6X6 does not bundle provider credentials, SDKs, networking, or a paid inference service. Host-enforced mode cannot override provider/system safety policy, and formatting checks alone cannot prove factual correctness.
+
+`fail_closed=False` is intentionally rejected. Optional lossless reflow is disabled by default and only accepts single-line ordinary prose; protected or exact-format content is retried or blocked without whitespace changes.
 
 ## Want your AI to install it?
 
