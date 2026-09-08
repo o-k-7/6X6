@@ -45,7 +45,7 @@ jobs:
         run: |
           set -euo pipefail
           ollama pull "$MODEL"
-          ollama show "$MODEL" --json > model-info.json
+          curl -fsS http://127.0.0.1:11434/api/tags > model-info.json
           python - <<'PY'
           import hashlib, json, os, platform, re, urllib.request
           from datetime import datetime, timezone
@@ -56,7 +56,8 @@ jobs:
 
           provider=os.environ['PROVIDER']; model=os.environ['MODEL']; slug=os.environ['SLUG']; budget=int(os.environ['TOKEN_BUDGET'])
           protocol=Path('6X6-PROMPT.txt').read_text(encoding='utf-8').strip()
-          model_info=json.loads(Path('model-info.json').read_text())
+          tags=json.loads(Path('model-info.json').read_text()).get('models', [])
+          model_info=next((item for item in tags if item.get('name') == model or item.get('model') == model), {})
           scenarios=[
             {'id':'signal_en','mode':'signal','prompt':'Name three practical benefits of DNS caching.','critical':['latency'],'reflow':True},
             {'id':'signal_he','mode':'signal','prompt':'סכם בעברית למה חשוב לבצע גיבוי לפני מחיקת קבצים.','hebrew':True,'critical':['גיבוי'],'reflow':True},
