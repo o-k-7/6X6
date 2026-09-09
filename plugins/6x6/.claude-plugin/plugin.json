@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "6x6",
+  "displayName": "6X6",
+  "version": "1.0.2",
+  "description": "Essential answers first, with focused detail on request.",
+  "author": {
+    "name": "o-k-7",
+    "url": "https://github.com/o-k-7"
+  },
+  "homepage": "https://github.com/o-k-7/6X6",
+  "repository": "https://github.com/o-k-7/6X6",
+  "license": "MIT",
+  "keywords": [
+    "concise",
+    "progressive-disclosure",
+    "productivity"
+  ]
+}

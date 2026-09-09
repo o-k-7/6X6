@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">6X6</title>
+  <desc id="desc">White 6X6 lettering on a blue rounded square</desc>
+  <rect width="512" height="512" rx="112" fill="#185ADB"/>
+  <path fill="#FFFFFF" d="M92 148c0-38 29-68 68-68h50v54h-48c-10 0-18 8-18 18v30h40c42 0 76 34 76 76v62c0 62-37 112-84 112s-84-50-84-112V148zm52 88v84c0 33 14 58 32 58s32-25 32-58v-60c0-13-11-24-24-24h-40zm116-78 36-48 36 48-38 50 38 50-36 48-36-48 38-50-38-50zm86-10c0-38 29-68 68-68h50v54h-48c-10 0-18 8-18 18v30h40c42 0 76 34 76 76v62c0 62-37 112-84 112s-84-50-84-112V148zm52 88v84c0 33 14 58 32 58s32-25 32-58v-60c0-13-11-24-24-24h-40z"/>
+</svg>

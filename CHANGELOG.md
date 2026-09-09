@@ -4,7 +4,16 @@ Notable stable-line changes are recorded here. Earlier pre-release development h
 
 ## [Unreleased]
 
-No unreleased changes.
+### Added
+
+- installable plugin package for ChatGPT, Codex, and Claude Code;
+- repo-hosted marketplace catalogs for Codex-compatible hosts and Claude Code;
+- plugin listing copy, review cases, installation documentation, and package regression tests.
+
+### Security
+
+- the plugin is skills-only and requests no executable hook, MCP server, authentication, telemetry, network access, or paid service;
+- GitHub Actions are pinned to full commit SHAs.
 
 ## [1.0.2] - 2026-09-07
 
@@ -55,7 +64,7 @@ First stable public release of 6X6.
 
 ### Protocol
 
-- Signal → Expand → Full progressive disclosure;
+- Signal, Expand, Full progressive disclosure;
 - six-line / six-word Signal presentation targets for non-protected prose;
 - correctness and protected content override compression;
 - code, commands, URLs, exact values, errors, safety-critical wording, and required formats remain intact when shortening would damage them.

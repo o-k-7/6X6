@@ -21,7 +21,16 @@ That is enough to try instruction-only 6X6.
 
 Need help? Open the beginner guide: **[`QUICKSTART.md`](QUICKSTART.md)**.
 
-## Before → After
+## Install as a plugin
+
+6X6 now includes installable packages for ChatGPT/Codex and Claude Code.
+
+- ChatGPT and Codex: use the package in `plugins/6x6/`. Public directory availability depends on OpenAI review.
+- Claude Code: add this repository with `/plugin marketplace add o-k-7/6X6`, then run `/plugin install 6x6@ok7-plugins`.
+
+See [`docs/PLUGIN_INSTALLATION.md`](docs/PLUGIN_INSTALLATION.md) for installation and verification details. Installing the plugin makes the Skill available; it does not guarantee automatic use on every response.
+
+## Before and after
 
 **Before**
 
@@ -41,7 +50,7 @@ Then ask `Expand line 3.` when you want the reasoning.
 
 See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full illustrative example.
 
-## Signal → Expand → Full
+## Signal, Expand, Full
 
 Signal targets **6 non-protected lines with up to 6 words per line**. Those are presentation targets, not destructive limits.
 
@@ -164,7 +173,5 @@ Live external-model acceptance may involve provider-specific accounts or costs. 
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md), [`DCO.md`](DCO.md), and the MIT [`LICENSE`](LICENSE).
-
----
 
 **36 words first. Everything else on demand.**
