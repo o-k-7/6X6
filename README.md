@@ -21,6 +21,15 @@ That is enough to try instruction-only 6X6.
 
 Need help? Open the beginner guide: **[`QUICKSTART.md`](QUICKSTART.md)**.
 
+## Install as a plugin
+
+6X6 now includes installable packages for ChatGPT/Codex and Claude Code.
+
+- ChatGPT and Codex: use the package in `plugins/6x6/`. Public directory availability depends on OpenAI review.
+- Claude Code: add this repository with `/plugin marketplace add o-k-7/6X6`, then run `/plugin install 6x6@ok7-plugins`.
+
+See [`docs/PLUGIN_INSTALLATION.md`](docs/PLUGIN_INSTALLATION.md) for installation and verification details. Installing the plugin makes the Skill available; it does not guarantee automatic use on every response.
+
 ## Before and after
 
 **Before**

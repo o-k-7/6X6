@@ -1,0 +1,20 @@
+{
+  "name": "6x6-community",
+  "interface": {
+    "displayName": "6X6 Community"
+  },
+  "plugins": [
+    {
+      "name": "6x6",
+      "source": {
+        "source": "local",
+        "path": "./plugins/6x6"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
