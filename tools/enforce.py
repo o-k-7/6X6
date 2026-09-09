@@ -124,7 +124,8 @@ _FULL_RE = re.compile(
 )
 _EXPAND_RE = re.compile(r"^\s*(?:expand|details?|explain in detail)\s*[:,-]?\s*", re.IGNORECASE)
 _UNSAFE_REFLOW_RE = re.compile(
-    r"(?:https?://|www\.|`|\$\s|^[\[{]|[\]}]\s*$|\|.*\||\b(?:curl|wget|python|bash|sh|pwsh|cmd|sudo|git)\b|\d)",
+    r"(?:https?://|www\.|[`\"'“”‘’]|\\|=|\$\s|^[\[<{]|[\]}>]\s*$|\|.*\||"
+    r"\b(?:curl|wget|python|bash|sh|pwsh|cmd|sudo|git)\b|\d)",
     re.IGNORECASE | re.MULTILINE,
 )
 

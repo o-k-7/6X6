@@ -22,4 +22,4 @@ Blocked output is not counted as a pass. Workflow success means the experiment c
 
 The DeepSeek baseline produced non-empty final content with the larger budget, and host enforcement passed 3/8 scenarios. This supports the diagnosis that the earlier all-empty result was at least partly a harness/output-budget issue; it does not prove protocol compatibility.
 
-Full raw final outputs, prompts, model/runtime metadata, reasoning-presence booleans, attempts, structural and retention checks, release decisions, and failure classifications are stored in `evidence/live-open-models-2026-09-08-v103-final.json`.
+The evidence file stores every instruction-only final output and every released host output. For blocked host attempts, it stores attempt outcomes and provider metadata, but not the rejected candidate text. It also records prompts, model/runtime metadata, reasoning-presence booleans, structural and retention checks, release decisions, and failure classifications. This limitation prevents the run from satisfying a stronger claim that all rejected raw candidates were preserved.

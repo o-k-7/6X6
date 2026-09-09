@@ -157,6 +157,9 @@ class EnforceTests(unittest.TestCase):
             "Run python tools/check_6x6.py now please today",
             "Retry 2 times before failing safely now",
             '{"answer": "one two three four five six seven"}',
+            'Preserve "alpha beta gamma delta epsilon zeta eta" exactly',
+            "Preserve 'alpha beta gamma delta epsilon zeta eta' exactly",
+            "key=value alpha beta gamma delta epsilon zeta eta",
             "| one | two | three | four | five | six | seven |",
             "first line\nsecond line with seven ordinary prose words here",
         )

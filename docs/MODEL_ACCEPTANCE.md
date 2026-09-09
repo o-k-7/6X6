@@ -66,6 +66,6 @@ A provider with no authorized zero-cost execution path remains `blocked`/`not_ru
 
 Three eight-family open-model lab runs are recorded under `evidence/`. The final v1.0.3 candidate run completed all 64 scenarios: instruction-only passed 15, host-enforced output passed and was released in 23, and 41 outputs were blocked. No infrastructure error was counted in that run.
 
-The final record is validated by `tools/validate_open_evidence.py`. It includes prompts, model identifiers and digests, runtime settings, final outputs, reasoning-presence flags without reasoning text, structural and retention checks, attempts, release decisions, and failure categories.
+The final record is validated by `tools/validate_open_evidence.py`. It includes prompts, model identifiers and digests, runtime settings, every instruction-only final output, released host outputs, reasoning-presence flags without reasoning text, attempt metadata, structural and retention checks, release decisions, and failure categories. The final v1.0.3 candidate record does not contain the rejected candidate text for blocked host attempts; do not describe it as a complete raw-output archive.
 
 These results are diagnostic evidence, not an 8/8 pass. The branch makes no provider-wide or universal compatibility claim. A hosted-provider certification still requires genuine evidence from every provider and scenario accepted by `tools/live_acceptance.py`.
