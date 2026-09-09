@@ -27,7 +27,7 @@ If automatic installation is unsupported, use `docs/INSTALLATION.md`.
 
 ## Applications you control
 
-If you control model invocation and want stronger enforcement, use the optional `tools/enforce.py` reference adapter. It injects 6X6, validates output, retries repair, and can fail closed instead of releasing a structurally non-compliant Signal.
+If you control model invocation and want stronger enforcement, use the optional `tools/enforce.py` reference adapter. It injects 6X6, validates output, retries repair, and fails closed instead of releasing a structurally non-compliant Signal.
 
 This **host-enforced mode** is stronger than a prompt alone, but it cannot override provider/system safety policy and its format check does not prove factual correctness.
 
@@ -36,7 +36,7 @@ This **host-enforced mode** is stronger than a prompt alone, but it cannot overr
 Open `examples/BEFORE_AFTER.md`.
 
 ```text
-Signal -> Expand -> Full
+Signal, then Expand, then Full
 ```
 
 You get the useful answer first. Details remain available when you ask. Full responses are not forced back into the strict Signal target.

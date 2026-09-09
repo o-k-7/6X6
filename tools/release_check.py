@@ -3,8 +3,16 @@
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
+
+try:
+    from tools.validate_open_evidence import validate as validate_open_evidence
+except ModuleNotFoundError as exc:
+    if exc.name != "tools":
+        raise
+    from validate_open_evidence import validate as validate_open_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = (
@@ -38,6 +46,7 @@ REQUIRED = (
     "tools/evaluate.py",
     "tools/enforce.py",
     "tools/live_acceptance.py",
+    "tools/validate_open_evidence.py",
     "tools/security_check.py",
     "tests/test_enforce.py",
     "tests/test_live_acceptance.py",
@@ -117,6 +126,20 @@ def run(root: Path = ROOT) -> list[str]:
         for required_text in ("display_name:", "short_description:", "default_prompt:"):
             if required_text not in metadata:
                 errors.append(f"openai.yaml missing {required_text[:-1]}")
+
+    evidence_dir = root / "evidence"
+    if evidence_dir.is_dir():
+        for evidence_path in sorted(evidence_dir.glob("*.json")):
+            try:
+                payload = json.loads(evidence_path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+                errors.append(f"invalid evidence JSON: {evidence_path.name}")
+                continue
+            if not isinstance(payload, dict):
+                errors.append(f"evidence must be a JSON object: {evidence_path.name}")
+            elif payload.get("schema_version") == 4:
+                for error in validate_open_evidence(payload):
+                    errors.append(f"{evidence_path.name}: {error}")
 
     return errors
 

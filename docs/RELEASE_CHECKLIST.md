@@ -20,6 +20,7 @@ Use this checklist before tagging a release from the public repository.
 - [ ] `python tools/check_6x6.py examples/sample-signal.txt` passes.
 - [ ] `python tools/security_check.py` passes.
 - [ ] `python tools/release_check.py` passes.
+- [ ] `python tools/validate_open_evidence.py <evidence-file>` passes for every schema-version 4 record.
 - [ ] `python tools/evaluate.py --cases evals/cases.json --outputs evals/sample_outputs.json` passes.
 - [ ] Partial evaluation fixtures cannot report a full pass.
 - [ ] Host-enforcement retry and fail-closed behavior have regression tests.

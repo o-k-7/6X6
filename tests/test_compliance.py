@@ -15,6 +15,9 @@ class WordCountingTests(unittest.TestCase):
 
 
 class SignalComplianceTests(unittest.TestCase):
+    def test_empty_signal_fails(self):
+        self.assertFalse(check_signal("").compliant)
+
     def test_valid_six_by_six_signal_passes(self):
         text = """Ship the fix today.
 Tests are green.

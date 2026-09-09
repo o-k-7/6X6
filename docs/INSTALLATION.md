@@ -3,7 +3,7 @@
 6X6 supports two installation modes.
 
 - **Instruction-only**: install the Skill or persistent prompt. This is the simplest option, but the host/model can still deviate.
-- **Host-enforced**: the host injects 6X6 in its strongest supported instruction layer, validates the returned Signal, retries repair, and can fail closed instead of releasing non-compliant output.
+- **Host-enforced**: the host injects 6X6 in its strongest supported instruction layer, validates the returned Signal, retries repair, and fails closed instead of releasing non-compliant output.
 
 Neither mode can override higher-priority provider/system safety policies.
 
@@ -144,7 +144,11 @@ The adapter:
 3. validates deterministic structure before releasing Signal responses;
 4. retries with an explicit repair instruction;
 5. optionally runs a host-provided semantic/task validator;
-6. fails closed when acceptable output cannot be established.
+6. always fails closed when acceptable output cannot be established.
+
+`fail_closed=False` is rejected. There is no reference-adapter path that releases a failed candidate. An integrating application that independently implements fail-open behavior assumes responsibility for that separate release path and should label its output unvalidated.
+
+Optional `allow_lossless_reflow=True` remains disabled by default. It only accepts single-line ordinary prose and refuses code-like, structured, numeric, URL, command, table, or multi-line content.
 
 `Expand` and `Full` deliberately bypass the strict Signal size checker. They still receive persistent 6X6 instructions and optional semantic validation, but are allowed to be complete responses as required by the protocol.
 

@@ -7,13 +7,13 @@ strongest system/developer instruction layer the provider exposes while user
 content stays in the user role.
 
 For Signal responses the adapter validates structure before release, retries with
-an explicit repair instruction, and can fail closed. Expand and Full deliberately
+an explicit repair instruction, and fails closed. Expand and Full deliberately
 skip the strict Signal size gate because the protocol does not constrain those
 modes to 6x6 presentation targets.
 
 The adapter cannot override provider/system safety policies. It enforces only what
 the integrating host controls: instruction placement, output validation, retry,
-and release of output.
+optional lossless Signal reflow, and release of output.
 """
 
 from __future__ import annotations
@@ -35,8 +35,24 @@ ResponseMode = Literal["auto", "signal", "expand", "full"]
 ResolvedMode = Literal["signal", "expand", "full"]
 
 
+_HOST_ENFORCEMENT_SUFFIX = """
+
+HOST ENFORCEMENT CONTRACT:
+This host validates 6X6 output before release. For Signal mode, produce no more
+than six non-protected content lines and no more than six words per non-protected
+line unless preserving correctness, safety, exact content, or the user's required
+format makes that impossible. Noncompliant Signal output may be rejected and
+retried. Expand and Full are not constrained to the Signal size target. Never
+sacrifice correctness or required exact content to satisfy formatting.
+""".strip()
+
+
 class EnforcementError(RuntimeError):
     """Raised when fail-closed enforcement cannot obtain an acceptable response."""
+
+    def __init__(self, message: str, attempts: tuple = ()) -> None:
+        super().__init__(message)
+        self.attempts = attempts
 
 
 @dataclass(frozen=True)
@@ -85,6 +101,11 @@ class Attempt:
     response_mode: ResolvedMode
     structural: CheckResult | None
     semantic_ok: bool
+    nonempty: bool = True
+    reflowed: bool = False
+    failure_reason: str | None = None
+    provider_error: str | None = None
+    validation_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -98,8 +119,16 @@ ModelCallable = Callable[[ModelRequest], str]
 SemanticValidator = Callable[[str], bool]
 
 
-_FULL_RE = re.compile(r"(?:^|\b)(?:full|full explanation|complete|complete answer|in full)(?:\b|$)", re.IGNORECASE)
-_EXPAND_RE = re.compile(r"(?:^|\b)(?:expand|details|detail|explain|why)(?:\b|$)", re.IGNORECASE)
+_FULL_RE = re.compile(
+    r"(?:^\s*(?:full(?: explanation| answer)?|complete answer|in full)\s*[:,-]?|\b(?:the )?full explanation\b)",
+    re.IGNORECASE,
+)
+_EXPAND_RE = re.compile(r"^\s*(?:expand|details?|explain in detail)\s*[:,-]?\s*", re.IGNORECASE)
+_UNSAFE_REFLOW_RE = re.compile(
+    r"(?:https?://|www\.|[`\"'“”‘’]|\\|=|\$\s|^[\[<{]|[\]}>]\s*$|\|.*\||"
+    r"\b(?:curl|wget|python|bash|sh|pwsh|cmd|sudo|git)\b|\d)",
+    re.IGNORECASE | re.MULTILINE,
+)
 
 
 def load_protocol(path: str | Path = "6X6-PROMPT.txt") -> str:
@@ -123,13 +152,56 @@ def resolve_mode(user_prompt: str, mode: ResponseMode) -> ResolvedMode:
     return "signal"
 
 
-def _repair_instruction(mode: ResolvedMode, structural: CheckResult | None, semantic_ok: bool) -> str:
+def build_system_instruction(protocol: str, *, host_contract: bool = True) -> str:
+    """Return the canonical protocol plus the host-controlled release contract."""
+    canonical = protocol.strip()
+    if not canonical:
+        raise ValueError("protocol must not be empty")
+    if not host_contract:
+        return canonical
+    return canonical + "\n\n" + _HOST_ENFORCEMENT_SUFFIX
+
+
+def lossless_reflow_signal(text: str) -> str | None:
+    """Reflow a short Signal without deleting or rewriting whitespace tokens.
+
+    This helper is intentionally conservative: it only succeeds when the entire
+    output contains at most 36 whitespace-separated tokens. It preserves token
+    order and token text, changing only whitespace between tokens. Integrations
+    must disable it when whitespace itself is protected (for example code,
+    structured data, poetry, or a user-required exact layout).
+    """
+    # Reflow is only safe for one-line, ordinary prose. Anything that resembles
+    # code, a command, structured data, a table, a URL, a number, or intentional
+    # layout must be validated/retried without whitespace mutation.
+    if "\n" in text or "\r" in text or _UNSAFE_REFLOW_RE.search(text):
+        return None
+    tokens = text.split()
+    if not tokens or len(tokens) > 36:
+        return None
+    return "\n".join(" ".join(tokens[index : index + 6]) for index in range(0, len(tokens), 6))
+
+
+def _repair_instruction(
+    mode: ResolvedMode,
+    structural: CheckResult | None,
+    semantic_ok: bool,
+    *,
+    nonempty: bool,
+) -> str:
+    if not nonempty:
+        return (
+            "The prior response was empty. Answer the user's request now. Preserve correctness, safety, task "
+            "completion, exact values, code, URLs, commands, and required formats. Follow the active 6X6 mode. "
+            "Do not discuss this retry."
+        )
     if mode == "signal":
         reason = "Signal structure failed" if structural is not None and not structural.compliant else "semantic validation failed"
         return (
             f"Repair the prior answer because {reason}. Preserve correctness, safety, task completion, "
             "requested scope, exact values, code, URLs, commands, and required formats. Return a compliant "
-            "6X6 Signal. Do not describe the repair process."
+            "6X6 Signal: at most six non-protected content lines and at most six words per non-protected line. "
+            "Do not describe the repair process."
         )
     return (
         "Repair the prior answer because semantic validation failed. Preserve correctness, safety, task "
@@ -148,22 +220,30 @@ def enforce(
     protected_lines: set[int] | None = None,
     semantic_validator: SemanticValidator | None = None,
     fail_closed: bool = True,
+    host_contract: bool = True,
+    allow_lossless_reflow: bool = False,
 ) -> EnforcementResult:
     """Invoke a model behind a host-controlled 6X6 compliance gate.
 
     Signal mode receives deterministic structure validation plus optional semantic
     validation. Expand/Full intentionally skip the strict Signal structure gate and
     rely on non-empty output plus the optional semantic validator.
+
+    Empty model responses are retryable failures rather than immediate exceptions.
+    When ``allow_lossless_reflow`` is enabled, a noncompliant Signal of at most 36
+    whitespace tokens may be reflowed without deleting or rewriting tokens, then
+    revalidated before release. The option must remain disabled when whitespace or
+    layout is itself protected content.
     """
     if max_retries < 0:
         raise ValueError("max_retries must be >= 0")
+    if fail_closed is not True:
+        raise ValueError("fail_closed=False is unsafe and no longer supported")
     if not isinstance(user_prompt, str) or not user_prompt.strip():
         raise ValueError("user_prompt must not be empty")
 
     canonical = protocol.strip() if protocol is not None else load_protocol()
-    if not canonical:
-        raise ValueError("protocol must not be empty")
-
+    system_instruction = build_system_instruction(canonical, host_contract=host_contract)
     mode = resolve_mode(user_prompt, response_mode)
     attempts: list[Attempt] = []
     repair: str | None = None
@@ -171,34 +251,92 @@ def enforce(
 
     for number in range(1, max_retries + 2):
         request = ModelRequest(
-            system_instruction=canonical,
+            system_instruction=system_instruction,
             user_content=user_prompt,
             response_mode=mode,
             attempt=number,
             repair_instruction=repair,
             prior_output=prior_output,
         )
-        output = invoke(request)
-        if not isinstance(output, str) or not output.strip():
-            raise EnforcementError("model returned an empty or non-text response")
+        provider_error = None
+        try:
+            raw = invoke(request)
+        except TimeoutError:
+            raw = None
+            provider_error = "timeout"
+        except Exception as exc:
+            raw = None
+            provider_error = f"provider_error:{type(exc).__name__}"
+        output = raw if isinstance(raw, str) else ""
+        nonempty = bool(output.strip())
 
-        structural = check_signal(output, protected_lines=protected_lines) if mode == "signal" else None
-        semantic_ok = semantic_validator(output) if semantic_validator else True
-        attempt = Attempt(number, output, mode, structural, semantic_ok)
+        structural = check_signal(output, protected_lines=protected_lines) if mode == "signal" and nonempty else None
+        validation_error = None
+        if semantic_validator and nonempty:
+            try:
+                semantic_ok = bool(semantic_validator(output))
+            except Exception as exc:
+                semantic_ok = False
+                validation_error = f"semantic_validator_error:{type(exc).__name__}"
+        else:
+            semantic_ok = semantic_validator is None and nonempty
+        reflowed = False
+
+        if (
+            nonempty
+            and mode == "signal"
+            and structural is not None
+            and not structural.compliant
+            and allow_lossless_reflow
+            and not protected_lines
+        ):
+            repaired = lossless_reflow_signal(output)
+            if repaired is not None:
+                repaired_structural = check_signal(repaired)
+                if semantic_validator:
+                    try:
+                        repaired_semantic = bool(semantic_validator(repaired))
+                    except Exception as exc:
+                        repaired_semantic = False
+                        validation_error = f"semantic_validator_error:{type(exc).__name__}"
+                else:
+                    repaired_semantic = True
+                if repaired_structural.compliant and repaired_semantic:
+                    output = repaired
+                    structural = repaired_structural
+                    semantic_ok = repaired_semantic
+                    reflowed = True
+
+        if provider_error:
+            failure_reason = provider_error
+        elif not nonempty:
+            failure_reason = "empty" if isinstance(raw, str) else "non_text"
+        elif structural is not None and not structural.compliant:
+            failure_reason = "structural"
+        elif validation_error:
+            failure_reason = validation_error
+        elif not semantic_ok:
+            failure_reason = "semantic"
+        else:
+            failure_reason = None
+        attempt = Attempt(
+            number, output, mode, structural, semantic_ok,
+            nonempty=nonempty, reflowed=reflowed,
+            failure_reason=failure_reason, provider_error=provider_error,
+            validation_error=validation_error,
+        )
         attempts.append(attempt)
 
-        structure_ok = structural.compliant if structural is not None else True
-        if structure_ok and semantic_ok:
+        structure_ok = structural.compliant if structural is not None else (mode != "signal" and nonempty)
+        if nonempty and structure_ok and semantic_ok:
             return EnforcementResult(output=output, response_mode=mode, attempts=tuple(attempts))
 
         if number <= max_retries:
-            repair = _repair_instruction(mode, structural, semantic_ok)
+            repair = _repair_instruction(mode, structural, semantic_ok, nonempty=nonempty)
             prior_output = output
 
     message = (
         f"6X6 enforcement failed after {len(attempts)} attempt(s); "
         "host refused to release an unacceptable response"
     )
-    if fail_closed:
-        raise EnforcementError(message)
-    return EnforcementResult(output=attempts[-1].output, response_mode=mode, attempts=tuple(attempts))
+    raise EnforcementError(message, tuple(attempts))

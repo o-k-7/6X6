@@ -54,7 +54,7 @@ See [`examples/BEFORE_AFTER.md`](examples/BEFORE_AFTER.md) for the full illustra
 
 Signal targets **6 non-protected lines with up to 6 words per line**. Those are presentation targets, not destructive limits.
 
-Ask `expand`, `why`, `details`, `full`, or any ordinary follow-up for more. **Expand and Full are not constrained by the strict Signal target.** If you ask for a complete answer, 6X6 should complete it rather than forcing repeated six-line turns.
+Ask `Expand`, `Details`, or `Full` when you want more. A host may also route an ordinary follow-up to an expanded response. **Expand and Full are not constrained by the strict Signal target.** If you ask for a complete answer, 6X6 should complete it rather than forcing repeated six-line turns.
 
 Correctness, safety, task completion, and explicit user requirements override compression. Code, commands, URLs, exact values, errors, structured data, tool arguments, and safety-critical wording stay intact when shortening would damage them.
 
@@ -81,7 +81,7 @@ If you control the application or agent host, 6X6 can be stronger than a prompt 
 - validates returned Signal structure before release;
 - retries with an explicit repair instruction;
 - supports a host-provided semantic/task validator;
-- can fail closed instead of releasing non-compliant output.
+- fails closed instead of releasing non-compliant output.
 
 ```python
 from tools.enforce import enforce
@@ -96,6 +96,10 @@ print(result.output)
 ```
 
 The host supplies `invoke_model`; 6X6 does not bundle provider credentials, SDKs, networking, or a paid inference service. Host-enforced mode cannot override provider/system safety policy, and formatting checks alone cannot prove factual correctness.
+
+`fail_closed=False` is intentionally rejected. Optional lossless reflow is disabled by default and only accepts single-line ordinary prose; protected or exact-format content is retried or blocked without whitespace changes.
+
+Every attempt records its structural, semantic, reflow, and failure state. Provider and semantic-validator exception types are recorded without retaining exception messages that may contain credentials or private data.
 
 ## Want your AI to install it?
 

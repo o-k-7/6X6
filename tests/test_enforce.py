@@ -1,6 +1,13 @@
 import unittest
 
-from tools.enforce import EnforcementError, ModelRequest, enforce, resolve_mode
+from tools.enforce import (
+    EnforcementError,
+    ModelRequest,
+    build_system_instruction,
+    enforce,
+    lossless_reflow_signal,
+    resolve_mode,
+)
 
 
 PROTOCOL = "Use 6X6. Target six lines and six words."
@@ -18,10 +25,25 @@ class EnforceTests(unittest.TestCase):
         self.assertEqual(result.output, "Ship after tests pass.")
         self.assertEqual(result.response_mode, "signal")
         self.assertEqual(len(result.attempts), 1)
-        self.assertEqual(calls[0].system_instruction, PROTOCOL)
+        self.assertTrue(calls[0].system_instruction.startswith(PROTOCOL))
+        self.assertIn("HOST ENFORCEMENT CONTRACT", calls[0].system_instruction)
         self.assertEqual(calls[0].user_content, "Should I ship?")
         self.assertEqual(calls[0].attempt, 1)
         self.assertIsNone(calls[0].repair_instruction)
+
+    def test_host_contract_can_be_disabled(self):
+        requests = []
+        enforce(
+            lambda request: requests.append(request) or "Short answer.",
+            "Answer",
+            protocol=PROTOCOL,
+            host_contract=False,
+        )
+        self.assertEqual(requests[0].system_instruction, PROTOCOL)
+
+    def test_build_system_instruction_rejects_empty_protocol(self):
+        with self.assertRaises(ValueError):
+            build_system_instruction("   ")
 
     def test_noncompliant_signal_is_repaired(self):
         outputs = [
@@ -37,9 +59,37 @@ class EnforceTests(unittest.TestCase):
         result = enforce(invoke, "Should I ship?", protocol=PROTOCOL, max_retries=1)
         self.assertEqual(len(result.attempts), 2)
         self.assertIn("Repair the prior answer", requests[1].repair_instruction)
-        self.assertIn("6X6 Signal", requests[1].repair_instruction)
-        self.assertEqual(requests[1].prior_output, requests[0] and result.attempts[0].output)
+        self.assertIn("six non-protected", requests[1].repair_instruction)
+        self.assertEqual(requests[1].prior_output, result.attempts[0].output)
         self.assertTrue(result.attempts[-1].structural.compliant)
+
+    def test_empty_response_is_retried(self):
+        outputs = ["", "Recovered answer."]
+        requests = []
+
+        def invoke(request: ModelRequest):
+            requests.append(request)
+            return outputs.pop(0)
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.output, "Recovered answer.")
+        self.assertEqual(len(result.attempts), 2)
+        self.assertFalse(result.attempts[0].nonempty)
+        self.assertIn("prior response was empty", requests[1].repair_instruction)
+
+    def test_repeated_empty_response_fails_closed(self):
+        with self.assertRaises(EnforcementError):
+            enforce(lambda _request: "", "Answer", protocol=PROTOCOL, max_retries=1)
+
+    def test_non_text_response_is_retryable(self):
+        outputs = [None, "Recovered."]
+
+        def invoke(_request):
+            return outputs.pop(0)
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.output, "Recovered.")
+        self.assertEqual(len(result.attempts), 2)
 
     def test_fail_closed_blocks_noncompliant_signal(self):
         def invoke(_request: ModelRequest):
@@ -47,6 +97,52 @@ class EnforceTests(unittest.TestCase):
 
         with self.assertRaises(EnforcementError):
             enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+
+    def test_fail_open_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unsafe"):
+            enforce(lambda _request: "invalid output with more than six words on one line", "Answer", protocol=PROTOCOL, fail_closed=False)
+
+    def test_provider_timeout_is_recorded_and_retried(self):
+        calls = 0
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise TimeoutError("secret provider detail")
+            return "Recovered."
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].failure_reason, "timeout")
+        self.assertEqual(result.output, "Recovered.")
+
+    def test_provider_error_is_classified_without_message(self):
+        calls = 0
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise ConnectionError("token=do-not-log")
+            return "Recovered."
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].provider_error, "provider_error:ConnectionError")
+        self.assertNotIn("do-not-log", repr(result.attempts[0]))
+
+    def test_custom_provider_error_is_recorded_and_retried(self):
+        class ProviderFailure(Exception):
+            pass
+
+        calls = 0
+
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise ProviderFailure("credential=do-not-log")
+            return "Recovered."
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].failure_reason, "provider_error:ProviderFailure")
+        self.assertNotIn("do-not-log", repr(result.attempts[0]))
+        self.assertEqual(result.output, "Recovered.")
 
     def test_semantic_validator_can_force_retry(self):
         outputs = ["Tests pass.", "Do not merge.\nTests still fail."]
@@ -63,6 +159,84 @@ class EnforceTests(unittest.TestCase):
         )
         self.assertEqual(len(result.attempts), 2)
         self.assertIn("Do not merge", result.output)
+
+    def test_semantic_validator_error_is_recorded_and_retried(self):
+        calls = 0
+
+        def validate(_text):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise LookupError("secret validator detail")
+            return True
+
+        result = enforce(
+            lambda _request: "Safe answer.",
+            "Answer",
+            protocol=PROTOCOL,
+            max_retries=1,
+            semantic_validator=validate,
+        )
+        first = result.attempts[0]
+        self.assertEqual(first.failure_reason, "semantic_validator_error:LookupError")
+        self.assertEqual(first.validation_error, "semantic_validator_error:LookupError")
+        self.assertNotIn("secret validator detail", repr(first))
+        self.assertEqual(result.output, "Safe answer.")
+
+    def test_lossless_reflow_preserves_tokens(self):
+        original = "one two three four five six seven eight nine ten"
+        reflowed = lossless_reflow_signal(original)
+        self.assertEqual(reflowed.split(), original.split())
+        self.assertEqual(reflowed, "one two three four five six\nseven eight nine ten")
+
+    def test_lossless_reflow_rejects_more_than_36_tokens(self):
+        self.assertIsNone(lossless_reflow_signal(" ".join(["word"] * 37)))
+
+    def test_lossless_reflow_rejects_protected_content(self):
+        protected = (
+            "Visit https://example.com now please today soon",
+            "Run python tools/check_6x6.py now please today",
+            "Retry 2 times before failing safely now",
+            '{"answer": "one two three four five six seven"}',
+            'Preserve "alpha beta gamma delta epsilon zeta eta" exactly',
+            "Preserve 'alpha beta gamma delta epsilon zeta eta' exactly",
+            "key=value alpha beta gamma delta epsilon zeta eta",
+            "| one | two | three | four | five | six | seven |",
+            "first line\nsecond line with seven ordinary prose words here",
+        )
+        for value in protected:
+            with self.subTest(value=value):
+                self.assertIsNone(lossless_reflow_signal(value))
+
+    def test_lossless_reflow_can_release_structural_failure(self):
+        text = "one two three four five six seven eight nine ten"
+        result = enforce(
+            lambda _request: text,
+            "Answer",
+            protocol=PROTOCOL,
+            max_retries=0,
+            allow_lossless_reflow=True,
+        )
+        self.assertTrue(result.attempts[0].reflowed)
+        self.assertTrue(result.attempts[0].structural.compliant)
+        self.assertEqual(result.output.split(), text.split())
+
+    def test_lossless_reflow_disabled_by_default(self):
+        text = "one two three four five six seven eight nine ten"
+        with self.assertRaises(EnforcementError):
+            enforce(lambda _request: text, "Answer", protocol=PROTOCOL, max_retries=0)
+
+    def test_lossless_reflow_skipped_when_protected_layout_exists(self):
+        text = "one two three four five six seven eight nine ten"
+        with self.assertRaises(EnforcementError):
+            enforce(
+                lambda _request: text,
+                "Answer",
+                protocol=PROTOCOL,
+                max_retries=0,
+                allow_lossless_reflow=True,
+                protected_lines={2},
+            )
 
     def test_full_is_not_forced_through_signal_size_gate(self):
         long_full = " ".join(["detailed"] * 80)
@@ -130,6 +304,8 @@ class EnforceTests(unittest.TestCase):
         self.assertEqual(resolve_mode("Answer normally", "auto"), "signal")
         self.assertEqual(resolve_mode("Expand line 2", "auto"), "expand")
         self.assertEqual(resolve_mode("Give me the full explanation", "auto"), "full")
+        self.assertEqual(resolve_mode("Why is DNS caching useful?", "auto"), "signal")
+        self.assertEqual(resolve_mode("Explain this briefly", "auto"), "signal")
 
     def test_empty_prompt_is_rejected(self):
         with self.assertRaises(ValueError):
