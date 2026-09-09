@@ -1,0 +1,41 @@
+{
+  "name": "6x6",
+  "version": "1.0.2",
+  "description": "Essential answers first, with focused detail on request.",
+  "author": {
+    "name": "o-k-7",
+    "url": "https://github.com/o-k-7"
+  },
+  "homepage": "https://github.com/o-k-7/6X6",
+  "repository": "https://github.com/o-k-7/6X6",
+  "license": "MIT",
+  "keywords": [
+    "concise",
+    "progressive-disclosure",
+    "productivity"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "6X6",
+    "shortDescription": "Essential answer first, details on request",
+    "longDescription": "6X6 puts the useful answer first, then expands when asked. It preserves safety, correctness, code, commands, URLs, exact values, and required formats.",
+    "developerName": "o-k-7",
+    "category": "Productivity",
+    "capabilities": [
+      "Concise responses",
+      "Progressive disclosure"
+    ],
+    "websiteURL": "https://github.com/o-k-7/6X6",
+    "privacyPolicyURL": "https://github.com/o-k-7/6X6/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/o-k-7/6X6/blob/main/LEGAL.md",
+    "defaultPrompt": [
+      "Answer with the essential information first.",
+      "Summarize this using 6X6.",
+      "Give me the signal first, then details."
+    ],
+    "brandColor": "#185ADB",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png"
+  }
+}

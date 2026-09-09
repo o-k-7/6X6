@@ -1,0 +1,7 @@
+interface:
+  display_name: "6X6"
+  short_description: "Essential answer first, details on demand"
+  default_prompt: "Use $6x6 to answer with the essential information first, then expand only when requested."
+
+policy:
+  allow_implicit_invocation: true

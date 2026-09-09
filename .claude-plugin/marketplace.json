@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "ok7-plugins",
+  "owner": {
+    "name": "o-k-7",
+    "url": "https://github.com/o-k-7"
+  },
+  "metadata": {
+    "description": "Open source plugins maintained by o-k-7",
+    "pluginRoot": "./plugins"
+  },
+  "plugins": [
+    {
+      "name": "6x6",
+      "source": "./plugins/6x6",
+      "description": "Essential answers first, with focused detail on request",
+      "version": "1.0.2",
+      "author": {
+        "name": "o-k-7"
+      },
+      "homepage": "https://github.com/o-k-7/6X6",
+      "repository": "https://github.com/o-k-7/6X6",
+      "license": "MIT",
+      "category": "Productivity",
+      "tags": [
+        "concise",
+        "progressive-disclosure",
+        "productivity"
+      ]
+    }
+  ]
+}

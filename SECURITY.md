@@ -16,8 +16,8 @@ For ordinary bugs that do not create a security risk, use a normal GitHub issue.
 
 6X6 has two modes:
 
-1. **Instruction-only mode** — Markdown/YAML instructions with no 6X6 runtime, network service, or additional host permission.
-2. **Host-enforced mode** — an optional local adapter (`tools/enforce.py`) that injects the canonical protocol into a host-controlled model invocation, validates returned Signal structure, retries repairs, and can fail closed instead of releasing a non-compliant response.
+1. **Instruction-only mode**: Markdown/YAML instructions with no 6X6 runtime, network service, or additional host permission.
+2. **Host-enforced mode**: an optional local adapter (`tools/enforce.py`) that injects the canonical protocol into a host-controlled model invocation, validates returned Signal structure, retries repairs, and can fail closed instead of releasing a non-compliant response.
 
 The enforcement adapter does not include provider credentials, networking code, shell execution, telemetry, or a bundled model client. The host supplies the model callable and remains responsible for authentication, provider policy, safety, data handling, and any inference cost.
 
