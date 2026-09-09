@@ -90,6 +90,8 @@ The host supplies `invoke_model`; 6X6 does not bundle provider credentials, SDKs
 
 `fail_closed=False` is intentionally rejected. Optional lossless reflow is disabled by default and only accepts single-line ordinary prose; protected or exact-format content is retried or blocked without whitespace changes.
 
+Every attempt records its structural, semantic, reflow, and failure state. Provider and semantic-validator exception types are recorded without retaining exception messages that may contain credentials or private data.
+
 ## Want your AI to install it?
 
 If you use a coding agent:

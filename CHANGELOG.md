@@ -9,6 +9,7 @@ Notable stable-line changes are recorded here. Earlier pre-release development h
 - empty Signal output can no longer pass the structural checker;
 - fail-open release is rejected instead of returning unvalidated output;
 - provider and validation failure categories are recorded separately;
+- custom provider and semantic-validator exceptions are retried and recorded without exception messages;
 - Ollama final content is separated from private reasoning;
 - ordinary `why` questions no longer imply Expand;
 - optional reflow rejects protected and exact-format content.

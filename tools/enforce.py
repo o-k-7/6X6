@@ -105,6 +105,7 @@ class Attempt:
     reflowed: bool = False
     failure_reason: str | None = None
     provider_error: str | None = None
+    validation_error: str | None = None
 
 
 @dataclass(frozen=True)
@@ -263,14 +264,22 @@ def enforce(
         except TimeoutError:
             raw = None
             provider_error = "timeout"
-        except (ConnectionError, OSError, RuntimeError, ValueError) as exc:
+        except Exception as exc:
             raw = None
             provider_error = f"provider_error:{type(exc).__name__}"
         output = raw if isinstance(raw, str) else ""
         nonempty = bool(output.strip())
 
         structural = check_signal(output, protected_lines=protected_lines) if mode == "signal" and nonempty else None
-        semantic_ok = semantic_validator(output) if semantic_validator and nonempty else (semantic_validator is None and nonempty)
+        validation_error = None
+        if semantic_validator and nonempty:
+            try:
+                semantic_ok = bool(semantic_validator(output))
+            except Exception as exc:
+                semantic_ok = False
+                validation_error = f"semantic_validator_error:{type(exc).__name__}"
+        else:
+            semantic_ok = semantic_validator is None and nonempty
         reflowed = False
 
         if (
@@ -284,7 +293,14 @@ def enforce(
             repaired = lossless_reflow_signal(output)
             if repaired is not None:
                 repaired_structural = check_signal(repaired)
-                repaired_semantic = semantic_validator(repaired) if semantic_validator else True
+                if semantic_validator:
+                    try:
+                        repaired_semantic = bool(semantic_validator(repaired))
+                    except Exception as exc:
+                        repaired_semantic = False
+                        validation_error = f"semantic_validator_error:{type(exc).__name__}"
+                else:
+                    repaired_semantic = True
                 if repaired_structural.compliant and repaired_semantic:
                     output = repaired
                     structural = repaired_structural
@@ -297,6 +313,8 @@ def enforce(
             failure_reason = "empty" if isinstance(raw, str) else "non_text"
         elif structural is not None and not structural.compliant:
             failure_reason = "structural"
+        elif validation_error:
+            failure_reason = validation_error
         elif not semantic_ok:
             failure_reason = "semantic"
         else:
@@ -305,6 +323,7 @@ def enforce(
             number, output, mode, structural, semantic_ok,
             nonempty=nonempty, reflowed=reflowed,
             failure_reason=failure_reason, provider_error=provider_error,
+            validation_error=validation_error,
         )
         attempts.append(attempt)
 

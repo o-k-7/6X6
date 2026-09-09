@@ -126,6 +126,24 @@ class EnforceTests(unittest.TestCase):
         self.assertEqual(result.attempts[0].provider_error, "provider_error:ConnectionError")
         self.assertNotIn("do-not-log", repr(result.attempts[0]))
 
+    def test_custom_provider_error_is_recorded_and_retried(self):
+        class ProviderFailure(Exception):
+            pass
+
+        calls = 0
+
+        def invoke(_request):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise ProviderFailure("credential=do-not-log")
+            return "Recovered."
+
+        result = enforce(invoke, "Answer", protocol=PROTOCOL, max_retries=1)
+        self.assertEqual(result.attempts[0].failure_reason, "provider_error:ProviderFailure")
+        self.assertNotIn("do-not-log", repr(result.attempts[0]))
+        self.assertEqual(result.output, "Recovered.")
+
     def test_semantic_validator_can_force_retry(self):
         outputs = ["Tests pass.", "Do not merge.\nTests still fail."]
 
@@ -141,6 +159,29 @@ class EnforceTests(unittest.TestCase):
         )
         self.assertEqual(len(result.attempts), 2)
         self.assertIn("Do not merge", result.output)
+
+    def test_semantic_validator_error_is_recorded_and_retried(self):
+        calls = 0
+
+        def validate(_text):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                raise LookupError("secret validator detail")
+            return True
+
+        result = enforce(
+            lambda _request: "Safe answer.",
+            "Answer",
+            protocol=PROTOCOL,
+            max_retries=1,
+            semantic_validator=validate,
+        )
+        first = result.attempts[0]
+        self.assertEqual(first.failure_reason, "semantic_validator_error:LookupError")
+        self.assertEqual(first.validation_error, "semantic_validator_error:LookupError")
+        self.assertNotIn("secret validator detail", repr(first))
+        self.assertEqual(result.output, "Safe answer.")
 
     def test_lossless_reflow_preserves_tokens(self):
         original = "one two three four five six seven eight nine ten"
